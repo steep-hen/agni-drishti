@@ -24,8 +24,8 @@ from pathlib import Path
 
 # --- Configuration ---
 ZONE = "southern"
-BASE_DIR = r"C:\Users\padha\Desktop\osm"
-LULC_DIR = r"C:\Users\padha\Desktop\osm\all tif files\esri_lulc_exports"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LULC_DIR = os.path.join(BASE_DIR, "all tif files", "esri_lulc_exports")
 ENRICHED_CSV = os.path.join(BASE_DIR, "pipeline_results_southern", f"firms_{ZONE}_enriched.csv")
 OUT_CSV = os.path.join(BASE_DIR, "pipeline_results_southern", f"firms_{ZONE}_lulc_enriched.csv")
 

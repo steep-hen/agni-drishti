@@ -4,7 +4,7 @@ import os
 import math
 
 # Paths
-BASE_DIR = r"C:\Users\padha\Desktop\osm"
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RESULTS_DIR = os.path.join(BASE_DIR, "pipeline_results_southern")
 FACILITIES_CSV = os.path.join(RESULTS_DIR, "facilities_southern_risk_scored.csv")
 FIRES_CSV = os.path.join(RESULTS_DIR, "firms_southern_lulc_enriched.csv")

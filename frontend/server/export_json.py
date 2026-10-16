@@ -3,8 +3,9 @@ import json
 import os
 import math
 
-BASE = r'C:\Users\padha\Desktop\osm\pipeline_results_southern'
-OUT = r'C:\Users\padha\Desktop\osm\frontend\server\data'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE = os.path.join(BASE_DIR, 'pipeline_results_southern')
+OUT = os.path.join(os.path.dirname(__file__), 'data')
 os.makedirs(OUT, exist_ok=True)
 
 def cf(v):

@@ -10,7 +10,7 @@ import os
 
 # --- Configuration ---
 ZONE = "southern"
-BASE_DIR = r"C:\Users\padha\Desktop\osm"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FACILITIES_CSV = os.path.join(BASE_DIR, "pipeline_results_southern", f"industrial_facilities_osm_enriched_{ZONE}.csv")
 CLASSIFIED_CSV = os.path.join(BASE_DIR, "pipeline_results_southern", f"firms_{ZONE}_classified.csv")
 OUT_SCORED    = os.path.join(BASE_DIR, "pipeline_results_southern", f"facilities_{ZONE}_risk_scored.csv")

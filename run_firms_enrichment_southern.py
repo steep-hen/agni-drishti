@@ -12,7 +12,7 @@ import os
 
 # --- Configuration ---
 ZONE = "southern"
-BASE_DIR = r"C:\Users\padha\Desktop\osm"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FACILITIES_CSV = os.path.join(BASE_DIR, "pipeline_results_southern", f"industrial_facilities_osm_enriched_{ZONE}.csv")
 
 # FIX v3: Use both parquet files (Jan-Apr archive + Apr-Sep NRT) = full 2026 coverage
