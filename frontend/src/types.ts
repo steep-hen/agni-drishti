@@ -1,4 +1,4 @@
-export type ScreenTab = 'map' | 'episodes' | 'facilities' | 'analytics' | 'review' | 'auth';
+export type ScreenTab = 'map' | 'episodes' | 'facilities' | 'analytics' | 'historical' | 'review' | 'auth';
 
 export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNCERTAIN';
 
@@ -15,6 +15,78 @@ export type AnomalyClassification =
   | 'UNCERTAIN'
   | 'COAL_FIRE_SMOLDERING'
   | 'SENSOR_GLINT';
+
+export interface HistoricalCandidate {
+  candidate_id: string;
+  neighbor_group_id: number;
+  cell_count: number;
+  total_detections: number;
+  max_distinct_days: number;
+  min_distinct_days: number;
+  lat: number;
+  lng: number;
+  nearest_facility_id: string;
+  nearest_facility_name: string;
+  nearest_facility_type: string;
+  nearest_facility_subtype: string;
+  nearest_operator: string;
+  nearest_state: string;
+  nearest_district: string;
+  nearest_distance_km: number;
+  nearest_verification: string;
+  detections_within_1km: number;
+  detections_within_3km: number;
+  detections_within_5km: number;
+  pct_within_1km: number;
+  pct_within_3km: number;
+  pct_within_5km: number;
+  source_class: string;
+  review_category: string;
+  classification_method: string;
+  random_forest_trained: boolean;
+  facility_proximity_is_causation: boolean;
+}
+
+export interface HistoricalMonthlyPoint {
+  neighbor_group_id?: number;
+  candidate_id?: string;
+  year_month: string;
+  year?: number;
+  month?: number;
+  detection_count: number;
+  distinct_observation_days: number;
+  mean_frp: number;
+  median_frp?: number;
+  max_frp: number;
+  active_candidates?: number;
+}
+
+export interface HistoricalAnnualPoint {
+  neighbor_group_id?: number;
+  candidate_id?: string;
+  year: number;
+  detection_count: number;
+  distinct_observation_days: number;
+  active_months?: number;
+  active_candidates?: number;
+  mean_frp: number;
+  median_frp?: number;
+  max_frp: number;
+  is_partial_year?: boolean;
+}
+
+export interface HistoricalDetection {
+  lat: number;
+  lng: number;
+  acq_date: string;
+  frp: number;
+  satellite: string;
+  confidence: string;
+  daynight: string;
+  neighbor_group_id: number;
+  nearest_facility_name: string;
+  nearest_distance_km: number;
+}
 
 export interface ThermalEpisode {
   id: string; // e.g. "EP-2026-04821"

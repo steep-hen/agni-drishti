@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Flame, Lock, ShieldCheck, Mail, Key, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Flame, Lock, ShieldCheck, Mail, Eye, EyeOff, X } from 'lucide-react';
 import { AnalystUser } from '../types';
-import { SATELLITE_IMAGES } from '../data/generatedData';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -16,8 +19,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   currentAnalyst,
   onLoginSuccess,
 }) => {
-  const [email, setEmail] = useState('capt.r.vance@ntro.gov.in');
-  const [password, setPassword] = useState('••••••••••••••••');
+  const [email, setEmail] = useState('analyst@geoint.gov.in');
+  const [password, setPassword] = useState('••••••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,48 +39,33 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         isAuthenticated: true,
       });
       onClose();
-    }, 600);
+    }, 500);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-      {/* Background Image: Deep Space / Orbital Atmosphere */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-40 bg-cover bg-center"
-        style={{ backgroundImage: `url(${SATELLITE_IMAGES.earthNight})` }}
-      />
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-[#10141a] via-[#10141a]/60 to-transparent" />
-
-      {/* Floating Card Matching Image 3 */}
-      <div className="relative z-10 w-full max-w-md bg-[#181c22]/90 backdrop-blur-xl border border-[#262a31] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in-95">
-        {/* Close button if user just inspecting */}
-        <button
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+      <Card className="max-w-md w-full p-6 sm:p-8 bg-card border-border shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95">
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute top-5 right-5 text-[#a98a7d] hover:text-white text-xs font-mono transition-colors"
+          className="absolute top-4 right-4 h-7 w-7 text-muted-foreground hover:text-foreground"
         >
-          ✕
-        </button>
+          <X className="w-4 h-4" />
+        </Button>
 
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ff6b00] to-[#93000a] p-0.5 shadow-xl shadow-[#ff6b00]/25 flex items-center justify-center">
-            <div className="w-full h-full bg-[#10141a] rounded-[14px] flex items-center justify-center">
-              <Flame className="w-7 h-7 text-[#ff6b00] " />
-            </div>
+          <div className="mx-auto h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shadow-sm">
+            <Flame className="w-5 h-5" />
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
-              AGNI<span className="text-[#ff6b00]">—</span>DRISHTI
-              <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#ff6b00]/20 text-[#ffb693] border border-[#ff6b00]/40 rounded font-bold">
-                अग्नि-दृष्टि
-              </span>
-            </h1>
-            <div className="text-xs font-mono font-bold text-[#ffb693] tracking-wider mt-1 uppercase">
-              ANALYST ACCESS
-            </div>
-            <p className="text-[11px] text-[#a98a7d] mt-1 font-mono">
-              National Technical Research Organisation (NTRO) // SAC
+            <h2 className="text-lg font-bold tracking-tight text-foreground">
+              Operator Authentication
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Sign in to manage thermal verifications and facility cadastre.
             </p>
           </div>
         </div>
@@ -85,88 +73,78 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-mono font-semibold text-[#dfe2eb] flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#ff6b00]" />
-              GOVERNMENT EMAIL / SERVICE ID
+            <label className="text-xs font-medium text-foreground block">
+              Work Email / Operator ID
             </label>
-            <input
+            <Input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="analyst.callsign@gov.in"
-              className="w-full bg-[#10141a] border border-[#262a31] text-white rounded-xl px-3.5 py-2.5 text-xs font-mono focus:border-[#ff6b00] focus:outline-none placeholder:text-[#a98a7d]"
+              placeholder="operator@agency.gov.in"
+              className="h-9 text-xs"
             />
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs font-mono">
-              <label className="font-semibold text-[#dfe2eb] flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-[#ff6b00]" />
-                SECURITY TOKEN / BIOMETRIC KEY
-              </label>
-              <a href="#forgot" onClick={(e) => { e.preventDefault(); alert("Contact NTRO Security Operations Center: soc@ntro.gov.in"); }} className="text-[#ffb693] hover:underline text-[11px]">
+            <div className="flex justify-between items-center text-xs">
+              <label className="font-medium text-foreground">Password / Token</label>
+              <a 
+                href="#forgot" 
+                onClick={(e) => { e.preventDefault(); alert("Contact security administrator."); }} 
+                className="text-primary hover:underline text-[11px]"
+              >
                 Forgot?
               </a>
             </div>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter RSA SecurID Token"
-                className="w-full bg-[#10141a] border border-[#262a31] text-white rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-mono focus:border-[#ff6b00] focus:outline-none placeholder:text-[#a98a7d]"
+                className="h-9 pr-9 text-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-[#a98a7d] hover:text-white"
+                className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-mono">
-            <label className="flex items-center gap-2 cursor-pointer text-[#a98a7d]">
+          <div className="flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 cursor-pointer text-muted-foreground">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="accent-[#ff6b00] rounded"
+                className="accent-primary rounded"
               />
-              <span>Remember clearance</span>
+              <span>Remember session</span>
             </label>
 
-            <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-bold">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-              PKI 4096-BIT
+            <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Encrypted Session
             </span>
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-[#ff6b00] to-[#ff8c33] hover:from-[#e56000] hover:to-[#ff6b00] text-white font-mono font-bold text-xs rounded-xl shadow-lg shadow-[#ff6b00]/30 transition-all flex items-center justify-center gap-2 active:scale-98"
+            className="w-full text-xs font-semibold"
           >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full " />
-                AUTHENTICATING WITH NTRO GATEWAY...
-              </span>
-            ) : (
-              <span>SIGN IN TO CONSOLE &rarr;</span>
-            )}
-          </button>
+            {isLoading ? 'Authenticating...' : 'Sign In to Console'}
+          </Button>
         </form>
 
-        {/* Confidential System Legal Notice */}
-        <div className="pt-2 border-t border-[#262a31] text-[9px] font-mono text-[#a98a7d] text-center leading-relaxed">
-          SECURITY PROTOCOL // CONFIDENTIAL GOVERNMENT SYSTEM // UNAUTHORIZED ACCESS IS A PUNISHABLE OFFENSE UNDER SECTION 66 OF THE IT ACT, 2000.
+        <div className="pt-2 border-t border-border text-[10px] text-muted-foreground text-center leading-relaxed">
+          Authorized personnel access only. Actions are logged and auditable.
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
-

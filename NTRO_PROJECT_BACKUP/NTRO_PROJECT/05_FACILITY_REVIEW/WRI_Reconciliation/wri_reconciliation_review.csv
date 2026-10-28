@@ -1,0 +1,22 @@
+canonical_facility_id,facility_name,latitude,longitude,capacity_mw,primary_fuel,existing_id,existing_name,existing_state,distance_km,existing_capacity_mw,existing_fuel,reconciliation_decision,decision_reason
+WRI_IND_PP_IND0000010,"ANAPARA ""C""",24.2007,82.8,1200.0,Coal,FAC_WRI_0008,ANPARA,Uttar Pradesh,1.106,2630.0,Coal,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000045,BELLARY TPS,15.1932,76.7195,1700.0,Coal,FAC_TPP_071,Bellary Thermal Power Station,Karnataka,0.36,1700.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000081,CHHABRA TPS,24.6217,77.0357,2320.0,Coal,FAC_TPP_065,Chhabra Thermal Power Station,Rajasthan,0.474,2320.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000099,DHOLPUR,26.7024,77.8492,330.0,Gas,FAC_TPP_068,Dholpur Combined Cycle Power Station,Rajasthan,0.278,330.0,gas,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000101,DHUVARAN CCPP,22.2396,72.752,595.2,Gas,FAC_TPP_062,Dhuvaran Thermal Power Station,Gujarat,0.211,595.2,gas,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000162,JSW RATNAGIRI TPP,17.297,73.212,1200.0,Coal,FAC_TPP_111,JSW Ratnagiri Power Station,Maharashtra,0.395,1200.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000176,KALISINDH,24.5295,76.0986,1200.0,Coal,FAC_TPP_066,Kalisindh Thermal Power Station,Rajasthan,0.152,1200.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000252,MAITHON RB TPP,23.8209,86.76,1050.0,Coal,FAC_TPP_107,Maithon Power Station,Jharkhand,0.1,1050.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000262,MEJIA,23.4639,87.1311,1340.0,Coal,FAC_MEJIA_DVC,Mejia Thermal Power Station,West Bengal,0.448,2340.0,coal,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000263,MEJIA TPS EXT,23.4639,87.1311,1000.0,Coal,FAC_MEJIA_DVC,Mejia Thermal Power Station,West Bengal,0.448,2340.0,coal,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000278,MUNDRA TPP,22.823,69.5532,4620.0,Coal,FAC_TPP_106,Mundra Thermal Power Station CGPL,Gujarat,0.468,,NA,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000396,SATPURA,22.11,78.173,1330.0,Coal,FAC_TPP_081,Satpura Thermal Power Station,Madhya Pradesh,0.309,1330.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000411,SIKKA REP.,22.4208,69.8276,500.0,Coal,FAC_TPP_060,Sikka Thermal Power Station,Gujarat,0.262,500.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000431,SURATGARH,29.179,74.0202,1500.0,Coal,FAC_TPP_063,Suratgarh Super Thermal Power Station,Rajasthan,0.113,1500.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity
+WRI_IND_PP_IND0000459,TORANGALLU EXT,15.1839,76.6622,600.0,Coal,FAC_VIJAYANAGAR_JSW,JSW Vijayanagar Power Station,Karnataka,0.494,860.0,coal,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000460,TORANGALLU IMP,15.1839,76.6622,260.0,Coal,FAC_VIJAYANAGAR_JSW,JSW Vijayanagar Power Station,Karnataka,0.494,860.0,coal,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000462,TROMBAY,19.0004,72.8983,500.0,Oil,FAC_TROMBAY_TATA,Trombay Thermal Power Station,Maharashtra,0.184,1580.0,NA,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000463,TROMBAY GT,19.0018,72.8967,180.0,Gas,FAC_TROMBAY_TATA,Trombay Thermal Power Station,Maharashtra,0.401,1580.0,NA,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000464,TROMBAY_Coal,19.0004,72.8983,750.0,Coal,FAC_TROMBAY_TATA,Trombay Thermal Power Station,Maharashtra,0.184,1580.0,NA,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000465,TROMBAY_Oil,19.0004,72.8983,150.0,Oil,FAC_TROMBAY_TATA,Trombay Thermal Power Station,Maharashtra,0.184,1580.0,NA,MANUAL_REVIEW,Requires further verification
+WRI_IND_PP_IND0000475,UKAI_Coal,21.2093,73.5574,1110.0,Coal,FAC_TPP_057,Ukai Thermal Power Station,Gujarat,0.281,1110.0,coal,MATCH_EXISTING,Same capacity and fuel; nearest facility within 1 km; confirm identity

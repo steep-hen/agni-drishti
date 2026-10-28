@@ -1,0 +1,38 @@
+neighbor_group_id,distance_km,canonical_facility_id,facility_name,facility_type,facility_subtype,operator,state,district,verification_status,source_manual,source_wri,source_osm
+2,3.325,FAC_WRI_0043,BHILAI TPP,thermal_power_plant,coal,,Chhattisgarh,Patan Tahsil,probable,False,True,False
+3,1.156,FAC_WRI_0084,DURG SPONGE IRON,thermal_power_plant,coal,Jai Industries ltd,Chhattisgarh,Durg Tahsil,probable,False,True,False
+4,1.776,FAC_WRI_0043,BHILAI TPP,thermal_power_plant,coal,,Chhattisgarh,Patan Tahsil,probable,False,True,False
+6,1.34,FAC_IND_STEEL_001,Bhilai Steel Plant,steel_plant,integrated,Steel Authority of India Limited (SAIL),Chhattisgarh,Durg,probable,True,False,False
+22,3.501,FAC_IND_MINE_090,Gare Pelma Sector-III Coal Mine,mine,coal,Adani Enterprises Ltd,Chhattisgarh,Raigarh,probable,True,False,False
+25,0.479,FAC_WRI_0257,RAIGARH TPP,thermal_power_plant,coal,,Chhattisgarh,Kharsia Tahsil,probable,False,True,False
+25,3.801,FAC_WRI_0049,BINJKOTE,thermal_power_plant,coal,,Chhattisgarh,Kharsia Tahsil,probable,False,True,False
+27,4.758,FAC_IND_MINE_090,Gare Pelma Sector-III Coal Mine,mine,coal,Adani Enterprises Ltd,Chhattisgarh,Raigarh,probable,True,False,False
+36,2.99,FAC_IND_MINE_015,Gevra Opencast Mine,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+36,2.99,FAC_IND_MINE_017,Dipka Opencast Mine,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+36,3.976,FAC_IND_MINE_018,Manikpur Opencast Mine,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+36,4.383,FAC_IND_MINE_021,Rajgamar Opencast Mine,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+36,4.888,FAC_IND_MINE_016,Kusmunda Opencast Mine,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+37,3.746,FAC_WRI_0315,SWASTIK KORBA,thermal_power_plant,coal,,Chhattisgarh,Katghora Tahsil,probable,False,True,False
+38,2.247,FAC_IND_MINE_019,Surakachar Colliery,mine,coal,South Eastern Coalfields Ltd (Coal India),Chhattisgarh,Korba,probable,True,False,False
+38,3.329,FAC_TPP_004,Korba Super Thermal Power Station,thermal_power_plant,coal,NTPC Limited,Chhattisgarh,Korba,probable,True,False,False
+38,3.329,FAC_TPP_103,Korba Thermal Power Station,thermal_power_plant,coal,Adani Power Limited,Chhattisgarh,Korba,probable,True,False,False
+38,3.329,FAC_TPP_092,Korba West Thermal Power Station,thermal_power_plant,coal,Chhattisgarh State Power Generation Company,Chhattisgarh,Korba,probable,True,False,False
+38,3.329,FAC_TPP_115,BALCO Thermal Power Station,thermal_power_plant,coal,Bharat Aluminium Company,Chhattisgarh,Korba,probable,True,False,False
+42,2.583,FAC_IND_MINE_047,Khadia Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+42,3.442,FAC_IND_MINE_137,Mayur OCP,mine,coal,Northern Coalfields Ltd,Madhya Pradesh,Singrauli,probable,True,False,False
+42,3.768,FAC_WRI_0305,SINGRAULI STPS,thermal_power_plant,coal,,Uttar Pradesh,Dudhi,probable,False,True,False
+43,1.213,FAC_IND_MINE_043,Jayant Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+43,3.117,FAC_IND_MINE_044,Nigahi Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+43,3.152,FAC_TPP_018,Solapur Thermal Power Station,thermal_power_plant,coal,NTPC Limited,Madhya Pradesh,Singrauli,probable,True,False,False
+43,4.03,FAC_IND_MINE_045,Amlohri Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+43,4.522,FAC_IND_MINE_137,Mayur OCP,mine,coal,Northern Coalfields Ltd,Madhya Pradesh,Singrauli,probable,True,False,False
+43,4.713,FAC_TPP_001,Singrauli Super Thermal Power Station,thermal_power_plant,coal,NTPC Limited,Madhya Pradesh,Singrauli,probable,True,False,False
+43,4.713,FAC_IND_MINE_136,Vindhyachal OCP,mine,coal,Northern Coalfields Ltd,Madhya Pradesh,Singrauli,probable,True,False,False
+43,4.885,FAC_WRI_0358,VINDH_CHAL STPS,thermal_power_plant,coal,,Madhya Pradesh,Singrauli Tahsil,probable,False,True,False
+43,4.956,FAC_WRI_0305,SINGRAULI STPS,thermal_power_plant,coal,,Uttar Pradesh,Dudhi,probable,False,True,False
+44,2.351,FAC_IND_MINE_043,Jayant Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+44,3.011,FAC_IND_MINE_137,Mayur OCP,mine,coal,Northern Coalfields Ltd,Madhya Pradesh,Singrauli,probable,True,False,False
+44,3.547,FAC_IND_MINE_045,Amlohri Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False
+44,4.275,FAC_WRI_0305,SINGRAULI STPS,thermal_power_plant,coal,,Uttar Pradesh,Dudhi,probable,False,True,False
+45,4.172,FAC_IND_MINE_137,Mayur OCP,mine,coal,Northern Coalfields Ltd,Madhya Pradesh,Singrauli,probable,True,False,False
+45,4.469,FAC_IND_MINE_047,Khadia Opencast Project,mine,coal,Northern Coalfields Ltd (Coal India),Madhya Pradesh,Singrauli,probable,True,False,False

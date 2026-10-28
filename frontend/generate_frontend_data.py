@@ -189,7 +189,7 @@ def generate():
     ep_json = ep_json.replace('"SATELLITE_IMAGES.refineryNight"', "SATELLITE_IMAGES.refineryNight")
     ep_json = ep_json.replace('"SATELLITE_IMAGES.thermalIr"', "SATELLITE_IMAGES.thermalIr")
     
-    ts_out.append(f"export const INITIAL_EPISODES: ThermalEpisode[] = {ep_json};")
+    ts_out.append(f"export const INITIAL_EPISODES: any = {ep_json};")
     ts_out.append("")
     
     # 2. Generate INITIAL_FACILITIES

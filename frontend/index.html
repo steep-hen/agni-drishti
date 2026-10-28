@@ -1,21 +1,36 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agni-Drishti Tactical HUD</title>
-    <meta name="description" content="Subcontinental satellite geo-intelligence and thermal infrared monitoring platform with human-in-the-loop validation, facility cadastre, and disaster response dispatch." />
-    <meta property="og:title" content="Agni-Drishti Tactical HUD" />
-    <meta property="og:description" content="Subcontinental satellite geo-intelligence and thermal infrared monitoring platform with human-in-the-loop validation, facility cadastre, and disaster response dispatch." />
+    <title>Agni-Drishti | Geospatial Thermal Anomaly & Industrial Risk Monitor</title>
+    <meta name="description" content="Subcontinental satellite thermal monitoring, facility cadastre, and geospatial anomaly verification platform." />
+    <meta property="og:title" content="Agni-Drishti | Geospatial Risk Monitor" />
+    <meta property="og:description" content="Satellite thermal monitoring, facility cadastre, and anomaly verification platform." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('agnidrishti_theme');
+          var isDark = stored ? stored === 'dark' : (!window.matchMedia('(prefers-color-scheme: light)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#10141a] text-[#dfe2eb] font-sans antialiased overflow-x-hidden selection:bg-[#ff6b00] selection:text-white">
+  <body class="bg-background text-foreground font-sans antialiased overflow-x-hidden selection:bg-primary/20 selection:text-primary">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

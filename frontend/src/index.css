@@ -1,104 +1,194 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+
+    /* Light Mode - Sleek Zinc Monochrome */
+    --background: #fbfbfc;
+    --foreground: #09090b;
+    --card: #ffffff;
+    --card-foreground: #09090b;
+    --popover: #ffffff;
+    --popover-foreground: #09090b;
+    --primary: #18181b;
+    --primary-foreground: #fafafa;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #18181b;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #f4f4f5;
+    --accent-foreground: #18181b;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #e4e4e7;
+    --input: #f4f4f5;
+    --ring: #18181b;
+    --radius: 0.5rem;
   }
-  
+
+  .dark {
+    /* Dark Mode - Official Zinc Monochrome */
+    --background: #09090b;
+    --foreground: #fafafa;
+    --card: #09090b;
+    --card-foreground: #fafafa;
+    --popover: #09090b;
+    --popover-foreground: #fafafa;
+    --primary: #fafafa;
+    --primary-foreground: #09090b;
+    --secondary: #18181b;
+    --secondary-foreground: #fafafa;
+    --muted: #18181b;
+    --muted-foreground: #a1a1aa;
+    --accent: #27272a;
+    --accent-foreground: #fafafa;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #27272a;
+    --input: #18181b;
+    --ring: #d4d4d8;
+  }
+
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background-color: #10141a;
-    color: #dfe2eb;
+    font-family: var(--font-sans);
+    background-color: var(--background);
+    color: var(--foreground);
+    letter-spacing: -0.011em;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
-/* Custom Tactical Scrollbar */
+/* Minimalist Theme-Adaptive Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0e14;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262a31;
-  border-radius: 3px;
+  background: var(--border);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff6b00;
+  background: var(--muted-foreground);
 }
 
-/* Radar Scanline Animation */
-@keyframes radar-sweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes thermal-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.18); }
-}
-
-. {
-  animation: thermal-pulse 2.2s ease-in-out infinite;
-}
-
-.radar-sweep-effect {
-  animation: radar-sweep 6s linear infinite;
-  transform-origin: center center;
-}
-
-/* Tactical Marker Clusters */
+/* Light Mode Map Marker Clusters */
 .marker-cluster-small {
-  background-color: rgba(255, 107, 0, 0.3) !important;
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
 }
 .marker-cluster-small div {
-  background-color: #ff6b00 !important;
-  color: #fff !important;
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  border: 1px solid #e4e4e7 !important;
   font-family: 'JetBrains Mono', monospace !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-size: 11px !important;
-  box-shadow: 0 0 10px rgba(255, 107, 0, 0.7) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
 .marker-cluster-medium {
-  background-color: rgba(245, 158, 11, 0.3) !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }
 .marker-cluster-medium div {
-  background-color: #f59e0b !important;
-  color: #fff !important;
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+  border: 1px solid #d4d4d8 !important;
   font-family: 'JetBrains Mono', monospace !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-size: 11px !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.7) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .marker-cluster-large {
-  background-color: rgba(239, 68, 68, 0.35) !important;
+  background-color: rgba(0, 0, 0, 0.14) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.26) !important;
 }
 .marker-cluster-large div {
-  background-color: #ef4444 !important;
-  color: #fff !important;
+  background-color: #e4e4e7 !important;
+  color: #09090b !important;
+  border: 1px solid #a1a1aa !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 700 !important;
-  font-size: 12px !important;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.8) !important;
+  font-size: 11px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14) !important;
+}
+
+/* Dark Mode Map Marker Clusters */
+.dark .marker-cluster-small {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.dark .marker-cluster-small div {
+  background-color: #27272a !important;
+  color: #fafafa !important;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .marker-cluster-medium {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+.dark .marker-cluster-medium div {
+  background-color: #3f3f46 !important;
+  color: #fafafa !important;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .marker-cluster-large {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+.dark .marker-cluster-large div {
+  background-color: #52525b !important;
+  color: #fafafa !important;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
 }
 
 .marker-cluster {
-  border-radius: 50% !important;
+  border-radius: 9999px !important;
 }
 .marker-cluster div {
-  border-radius: 50% !important;
+  border-radius: 9999px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
-
-
-

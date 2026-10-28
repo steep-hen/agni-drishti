@@ -1,0 +1,21 @@
+{
+  "project": "NTRO industrial thermal-source screening prototype",
+  "method": "Rule-based screening and spatial association",
+  "random_forest_trained": false,
+  "verified_source_labels_assigned": false,
+  "candidate_groups": 51,
+  "persistent_cell_detections": 167237,
+  "facility_inventory_records": 935,
+  "source_class_policy": "unknown unless independently supported",
+  "distance_interpretation": "Nearest inventory distance is spatial association, not proof of causation",
+  "temporal_scope": {
+    "start": "2019-01-01",
+    "end": "2026-09-04"
+  },
+  "known_limitations": [
+    "Facility inventory has point coordinates, not facility boundaries",
+    "Facility proximity cannot prove the origin of a thermal detection",
+    "2026 is an incomplete year",
+    "Persistence thresholds are exploratory and require validation"
+  ]
+}

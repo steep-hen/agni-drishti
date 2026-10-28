@@ -1,0 +1,12 @@
+dataset,check,value,status,notes
+candidate_analytics_master,row_count,51,PASS,
+candidate_analytics_master,unique_candidate_ids,51,PASS,
+candidate_analytics_master,source_class_values,unknown,PASS,No verified source labels assigned
+candidate_analytics_master,negative_median_distances,0,PASS,
+facility_inventory,row_count,935,PASS,
+facility_inventory,duplicate_facility_ids,0,PASS,
+facility_inventory,invalid_coordinates,0,PASS,
+persistent_detection_distances,row_count,167237,PASS,
+persistent_detection_distances,latitude_missing,0,PASS,
+persistent_detection_distances,longitude_missing,0,PASS,
+persistent_detection_distances,frp_missing,0,PASS,

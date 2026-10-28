@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Flame, Building2, MapPin, ChevronRight, Compass } from 'lucide-react';
+import { Search, Flame, Building2, ChevronRight, X } from 'lucide-react';
 import { ThermalEpisode, IndustrialFacility, ScreenTab } from '../types';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -25,10 +28,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        // toggle handled by parent
-      }
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
@@ -54,58 +53,58 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   ).slice(0, 4);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#181c22] border border-[#262a31] rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
-        <div className="p-4 border-b border-[#262a31] flex items-center gap-3">
-          <Search className="w-5 h-5 text-[#ff6b00]" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4 bg-background/80 backdrop-blur-sm">
+      <Card className="max-w-xl w-full shadow-2xl overflow-hidden bg-card border-border animate-in fade-in zoom-in-95">
+        <div className="p-3.5 border-b border-border flex items-center gap-3">
+          <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             autoFocus
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search episode ID, coordinates, facility, district... (ESC to close)"
-            className="w-full bg-transparent text-white font-mono text-xs placeholder:text-[#a98a7d] focus:outline-none"
+            placeholder="Search anomalies, coordinates, facilities, or states..."
+            className="w-full bg-transparent text-foreground text-xs placeholder:text-muted-foreground focus:outline-none"
           />
-          <span className="text-[10px] font-mono text-[#a98a7d] bg-[#10141a] px-2 py-0.5 rounded border border-[#262a31]">
+          <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground">
             ESC
-          </span>
+          </kbd>
         </div>
 
-        <div className="max-h-96 overflow-y-auto p-3 space-y-4 text-xs font-mono">
-          {/* Quick Navigation Jumps */}
+        <div className="max-h-96 overflow-y-auto p-3 space-y-4 text-xs">
+          {/* Quick Shortcuts */}
           <div>
-            <div className="text-[10px] text-[#a98a7d] uppercase tracking-wider px-2 mb-1.5">
-              Quick Views
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider px-2 mb-1.5 font-medium">
+              Navigation Shortcuts
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => { setActiveTab('review'); onClose(); }}
-                className="p-2.5 rounded-xl bg-[#10141a] hover:bg-[#262a31] border border-[#262a31] text-left flex items-center justify-between"
+                className="p-2.5 rounded-lg bg-secondary/40 hover:bg-secondary border border-border text-left flex items-center justify-between transition-colors"
               >
-                <span className="text-white font-bold flex items-center gap-2">
-                  <Flame className="w-3.5 h-3.5 text-[#ff6b00]" />
+                <span className="text-foreground font-medium flex items-center gap-2">
+                  <Flame className="w-3.5 h-3.5 text-foreground" />
                   Review Queue
                 </span>
-                <span className="text-[10px] text-[#ff6b00]">14 Pending</span>
+                <Badge variant="secondary" className="text-[10px]">Queue</Badge>
               </button>
               <button
                 onClick={() => { setActiveTab('facilities'); onClose(); }}
-                className="p-2.5 rounded-xl bg-[#10141a] hover:bg-[#262a31] border border-[#262a31] text-left flex items-center justify-between"
+                className="p-2.5 rounded-lg bg-secondary/40 hover:bg-secondary border border-border text-left flex items-center justify-between transition-colors"
               >
-                <span className="text-white font-bold flex items-center gap-2">
-                  <Building2 className="w-3.5 h-3.5 text-emerald-400" />
-                  PPAC Cadastre
+                <span className="text-foreground font-medium flex items-center gap-2">
+                  <Building2 className="w-3.5 h-3.5 text-foreground" />
+                  Facility Cadastre
                 </span>
-                <span className="text-[10px] text-emerald-400">1,482 Sites</span>
+                <Badge variant="secondary" className="text-[10px]">208 Sites</Badge>
               </button>
             </div>
           </div>
 
-          {/* Episodes Matches */}
+          {/* Thermal Episodes Matches */}
           {matchedEpisodes.length > 0 && (
             <div>
-              <div className="text-[10px] text-[#a98a7d] uppercase tracking-wider px-2 mb-1">
-                Thermal Episodes
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider px-2 mb-1.5 font-medium">
+                Thermal Anomalies
               </div>
               <div className="space-y-1">
                 {matchedEpisodes.map((ep) => (
@@ -115,26 +114,26 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       onSelectEpisode(ep.id);
                       onClose();
                     }}
-                    className="p-2.5 rounded-xl hover:bg-[#262a31] cursor-pointer flex items-center justify-between transition-colors"
+                    className="p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer flex items-center justify-between transition-colors border border-transparent hover:border-border"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Flame className="w-4 h-4 text-[#ff6b00]" />
+                      <Flame className="w-3.5 h-3.5 text-foreground shrink-0" />
                       <div>
-                        <div className="text-white font-bold text-xs">{ep.title}</div>
-                        <div className="text-[10px] text-[#a98a7d]">{ep.id} • {ep.districtState} • {ep.radiantHeatMw} MW</div>
+                        <div className="text-foreground font-medium text-xs">{ep.title}</div>
+                        <div className="text-[10px] font-mono text-muted-foreground">{ep.id} • {ep.districtState} • {ep.radiantHeatMw} MW</div>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[#a98a7d]" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Facilities Matches */}
+          {/* Facility Matches */}
           {matchedFacilities.length > 0 && (
             <div>
-              <div className="text-[10px] text-[#a98a7d] uppercase tracking-wider px-2 mb-1">
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider px-2 mb-1.5 font-medium">
                 Industrial Facilities
               </div>
               <div className="space-y-1">
@@ -145,24 +144,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       onSelectFacility(fac.id);
                       onClose();
                     }}
-                    className="p-2.5 rounded-xl hover:bg-[#262a31] cursor-pointer flex items-center justify-between transition-colors"
+                    className="p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer flex items-center justify-between transition-colors border border-transparent hover:border-border"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Building2 className="w-4 h-4 text-[#ffb693]" />
+                      <Building2 className="w-3.5 h-3.5 text-foreground shrink-0" />
                       <div>
-                        <div className="text-white font-bold text-xs">{fac.shortName}</div>
-                        <div className="text-[10px] text-[#a98a7d]">{fac.id} • {fac.district} • Cap {fac.nominalFrpCapMw} MW</div>
+                        <div className="text-foreground font-medium text-xs">{fac.name}</div>
+                        <div className="text-[10px] font-mono text-muted-foreground">{fac.id} • {fac.district} • Cap {fac.nominalFrpCapMw} MW</div>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[#a98a7d]" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
-

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ScreenTab, ThermalEpisode, IndustrialFacility, AnalystUser } from './types';
 import { CURRENT_ANALYST } from './data/generatedData';
+import { ThemeProvider } from './lib/theme';
 import { Header } from './components/Header';
 import { DispatchAlertModal } from './components/DispatchAlertModal';
 
 // Lazy-load all heavy screens — each only loads when first visited
+const HistoricalDashboardScreen = lazy(() => import('./components/HistoricalDashboardScreen').then(m => ({ default: m.HistoricalDashboardScreen })));
 const MapDashboardScreen = lazy(() => import('./components/MapDashboardScreen').then(m => ({ default: m.MapDashboardScreen })));
 const ReviewQueueScreen = lazy(() => import('./components/ReviewQueueScreen').then(m => ({ default: m.ReviewQueueScreen })));
 const EpisodesTableScreen = lazy(() => import('./components/EpisodesTableScreen').then(m => ({ default: m.EpisodesTableScreen })));
@@ -19,14 +21,14 @@ const API = 'http://localhost:3001/api';
 const LoadingScreen = () => (
   <div className="flex items-center justify-center h-64">
     <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-2 border-[#ff6b00] border-t-transparent rounded-full animate-spin" />
-      <span className="text-[#a98a7d] text-xs font-mono tracking-wider">LOADING MODULE...</span>
+      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <span className="text-muted-foreground text-xs font-medium">Loading module...</span>
     </div>
   </div>
 );
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ScreenTab>('review');
+  const [activeTab, setActiveTab] = useState<ScreenTab>('historical');
   const [episodes, setEpisodes] = useState<ThermalEpisode[]>([]);
   const [facilities, setFacilities] = useState<IndustrialFacility[]>([]);
   const [analyst, setAnalyst] = useState<AnalystUser>(CURRENT_ANALYST);
@@ -167,92 +169,100 @@ export default function App() {
   const pendingReviewCount = episodes.filter((e) => e.status === 'AWAITING VERIFICATION').length;
 
   return (
-    <div className="min-h-screen bg-[#10141a] text-[#dfe2eb] flex flex-col antialiased selection:bg-[#ff6b00] selection:text-white">
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        reviewCount={pendingReviewCount}
-        analyst={analyst}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onOpenLogin={() => setIsLoginOpen(true)}
-      />
-
-      <main className="flex-1 w-full pb-12">
-        {isLoading ? (
-          <LoadingScreen />
-        ) : (
-          <Suspense fallback={<LoadingScreen />}>
-            {activeTab === 'auth' && (
-              <AuthScreen
-                currentAnalyst={analyst}
-                onLoginSuccess={(a) => setAnalyst(a)}
-                onNavigateToConsole={(tab) => setActiveTab(tab || 'review')}
-              />
-            )}
-            {activeTab === 'review' && (
-              <ReviewQueueScreen
-                episodes={episodes}
-                onConfirmEpisode={handleConfirmEpisode}
-                onRejectGlint={handleRejectGlint}
-                onRequestSecondReview={handleRequestSecondReview}
-                onSelectEpisodeForMap={handleSelectEpisodeForMap}
-              />
-            )}
-            {activeTab === 'episodes' && (
-              <EpisodesTableScreen
-                episodes={episodes}
-                onSelectEpisodeToReview={handleSelectEpisodeToReview}
-                onSelectEpisodeForMap={handleSelectEpisodeForMap}
-              />
-            )}
-            {activeTab === 'facilities' && (
-              <FacilitiesDirectoryScreen
-                facilities={facilities}
-                onInspectEpisode={handleSelectEpisodeToReview}
-                onOpenMapForFacility={handleSelectEpisodeForMap}
-              />
-            )}
-            {activeTab === 'analytics' && (
-              <AnalyticsTrendsScreen
-                onOpenReviewQueue={() => setActiveTab('review')}
-                onInspectEpisode={handleSelectEpisodeToReview}
-              />
-            )}
-            {activeTab === 'map' && (
-              <MapDashboardScreen
-                onSelectEpisodeToReview={handleSelectEpisodeToReview}
-                onOpenFacilityDossier={handleOpenFacilityDossier}
-              />
-            )}
-          </Suspense>
-        )}
-      </main>
-
-      <Suspense fallback={null}>
-        <SearchModal
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          episodes={episodes}
-          facilities={facilities}
-          onSelectEpisode={handleSelectEpisodeToReview}
-          onSelectFacility={handleOpenFacilityDossier}
+    <ThemeProvider>
+      <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-primary/20 selection:text-primary">
+        <Header
+          activeTab={activeTab}
           setActiveTab={setActiveTab}
+          reviewCount={pendingReviewCount}
+          analyst={analyst}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenLogin={() => setIsLoginOpen(true)}
         />
-        <LoginModal
-          isOpen={isLoginOpen}
-          onClose={() => setIsLoginOpen(false)}
-          currentAnalyst={analyst}
-          onLoginSuccess={(a) => setAnalyst(a)}
-        />
-      </Suspense>
 
-      <DispatchAlertModal
-        isOpen={dispatchModalData.isOpen}
-        onClose={() => setDispatchModalData((p) => ({ ...p, isOpen: false }))}
-        episode={dispatchModalData.episode}
-        classification={dispatchModalData.classification}
-        confidence={dispatchModalData.confidence}
-      />
-    </div>
+        <main className="flex-1 w-full pb-12">
+          {isLoading ? (
+            <LoadingScreen />
+          ) : (
+            <Suspense fallback={<LoadingScreen />}>
+              {activeTab === 'historical' && (
+                <HistoricalDashboardScreen
+                  onInspectEpisode={handleSelectEpisodeToReview}
+                  onOpenTacticalMap={() => setActiveTab('map')}
+                />
+              )}
+              {activeTab === 'auth' && (
+                <AuthScreen
+                  currentAnalyst={analyst}
+                  onLoginSuccess={(a) => setAnalyst(a)}
+                  onNavigateToConsole={(tab) => setActiveTab(tab || 'review')}
+                />
+              )}
+              {activeTab === 'review' && (
+                <ReviewQueueScreen
+                  episodes={episodes}
+                  onConfirmEpisode={handleConfirmEpisode}
+                  onRejectGlint={handleRejectGlint}
+                  onRequestSecondReview={handleRequestSecondReview}
+                  onSelectEpisodeForMap={handleSelectEpisodeForMap}
+                />
+              )}
+              {activeTab === 'episodes' && (
+                <EpisodesTableScreen
+                  episodes={episodes}
+                  onSelectEpisodeToReview={handleSelectEpisodeToReview}
+                  onSelectEpisodeForMap={handleSelectEpisodeForMap}
+                />
+              )}
+              {activeTab === 'facilities' && (
+                <FacilitiesDirectoryScreen
+                  facilities={facilities}
+                  onInspectEpisode={handleSelectEpisodeToReview}
+                  onOpenMapForFacility={handleSelectEpisodeForMap}
+                />
+              )}
+              {activeTab === 'analytics' && (
+                <AnalyticsTrendsScreen
+                  onOpenReviewQueue={() => setActiveTab('review')}
+                  onInspectEpisode={handleSelectEpisodeToReview}
+                />
+              )}
+              {activeTab === 'map' && (
+                <MapDashboardScreen
+                  onSelectEpisodeToReview={handleSelectEpisodeToReview}
+                  onOpenFacilityDossier={handleOpenFacilityDossier}
+                />
+              )}
+            </Suspense>
+          )}
+        </main>
+
+        <Suspense fallback={null}>
+          <SearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            episodes={episodes}
+            facilities={facilities}
+            onSelectEpisode={handleSelectEpisodeToReview}
+            onSelectFacility={handleOpenFacilityDossier}
+            setActiveTab={setActiveTab}
+          />
+          <LoginModal
+            isOpen={isLoginOpen}
+            onClose={() => setIsLoginOpen(false)}
+            currentAnalyst={analyst}
+            onLoginSuccess={(a) => setAnalyst(a)}
+          />
+        </Suspense>
+
+        <DispatchAlertModal
+          isOpen={dispatchModalData.isOpen}
+          onClose={() => setDispatchModalData((p) => ({ ...p, isOpen: false }))}
+          episode={dispatchModalData.episode}
+          classification={dispatchModalData.classification}
+          confidence={dispatchModalData.confidence}
+        />
+      </div>
+    </ThemeProvider>
   );
 }

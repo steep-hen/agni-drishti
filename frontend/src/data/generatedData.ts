@@ -21,7 +21,7 @@ export const SATELLITE_IMAGES = {
   subcontinentalNight: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1600&q=80',
 };
 
-export const INITIAL_EPISODES: ThermalEpisode[] = [
+export const INITIAL_EPISODES: any = [
   {
     "id": "EP-2026-00138",
     "title": "Anomaly near Ramagundam OCP-III                                                    ",

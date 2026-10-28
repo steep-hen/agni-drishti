@@ -1,6 +1,9 @@
 import React from 'react';
-import { Radio, ShieldAlert, CheckCircle2, Flame, MapPin, Send } from 'lucide-react';
+import { Radio, CheckCircle2, X } from 'lucide-react';
 import { ThermalEpisode } from '../types';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 interface DispatchAlertModalProps {
   isOpen: boolean;
@@ -20,62 +23,67 @@ export const DispatchAlertModal: React.FC<DispatchAlertModalProps> = ({
   if (!isOpen || !episode) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-      <div className="bg-[#181c22] border border-[#ff6b00] rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+      <Card className="max-w-lg w-full p-6 space-y-4 bg-card border-border shadow-2xl animate-in fade-in zoom-in-95">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#262a31]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/50 flex items-center justify-center">
-              <Radio className="w-4 h-4 text-red-500 " />
+        <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-md bg-secondary border border-border flex items-center justify-center text-foreground">
+              <Radio className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-mono font-bold text-red-400 uppercase tracking-wider block">
-                EMERGENCY DISASTER BROADCAST
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider block">
+                Emergency Dispatch Service
               </span>
-              <span className="text-sm font-bold text-white">
-                AGNI TELEGRAM DISPATCHED
+              <span className="text-sm font-semibold text-foreground">
+                Notification Broadcast Dispatched
               </span>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#a98a7d] hover:text-white text-xs font-mono">
-            ✕ CLOSE
-          </button>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* Telegram Packet Visual */}
-        <div className="bg-[#10141a] p-4 rounded-2xl border border-[#262a31] space-y-3 font-mono text-xs">
-          <div className="flex justify-between pb-2 border-b border-[#262a31] text-[10px]">
-            <span className="text-[#a98a7d]">PROTOCOL: AGNI-SEC-NDRF-V4</span>
-            <span className="text-emerald-400 font-bold">STATUS: 100% TRANSMITTED</span>
+        <div className="bg-secondary/30 p-3.5 rounded-md border border-border space-y-3 text-xs">
+          <div className="flex justify-between pb-2 border-b border-border text-[10px]">
+            <span className="text-muted-foreground font-mono">Disaster Alert Protocol</span>
+            <Badge variant="outline" className="text-[10px] h-4">Transmitted</Badge>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="text-[11px] text-[#ffb693] font-bold">RECIPIENTS:</div>
-            <div className="text-[#dfe2eb] text-[11px] space-y-0.5">
-              <div>• National Disaster Response Force (NDRF) — Eastern Crisis Hub</div>
+          <div className="space-y-1">
+            <div className="text-[11px] font-medium text-foreground">Recipients:</div>
+            <div className="text-muted-foreground text-xs space-y-0.5">
+              <div>• National Disaster Response Force (NDRF) — Crisis Hub</div>
               <div>• State Disaster Management Authority (SDMA) — {episode.districtState}</div>
-              <div>• Principal Chief Conservator of Forests (PCCF) Emergency Cell</div>
+              <div>• Forest Division Emergency Cell</div>
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181c22] border border-[#262a31] space-y-1 text-[11px]">
-            <div className="text-white font-bold">{episode.title} ({episode.id})</div>
-            <div className="text-[#a98a7d]">Coordinates: {episode.coordinates.latStr}, {episode.coordinates.lngStr}</div>
-            <div className="text-red-400 font-bold">Radiative Heat: {episode.radiantHeatMw} MW (Tier 1 Escalation)</div>
-            <div className="text-emerald-400">Ground Truth: {classification} ({confidence}% Confidence)</div>
+          <div className="p-3 rounded-md bg-card border border-border space-y-1">
+            <div className="text-foreground font-medium text-xs">{episode.title} ({episode.id})</div>
+            <div className="text-muted-foreground font-mono text-[11px]">
+              Coordinates: {episode.coordinates.latStr}, {episode.coordinates.lngStr}
+            </div>
+            <div className="text-foreground font-mono text-[11px] font-medium">
+              Radiative Power: {episode.radiantHeatMw} MW
+            </div>
+            <div className="text-muted-foreground text-[11px]">
+              Classification: {classification} ({confidence}% Certainty)
+            </div>
           </div>
         </div>
 
         {/* Action Button */}
-        <button
+        <Button
           onClick={onClose}
-          className="w-full py-3 bg-[#ff6b00] hover:bg-[#e56000] text-white font-mono font-bold text-xs rounded-xl shadow-lg shadow-[#ff6b00]/25 transition-all flex items-center justify-center gap-2"
+          className="w-full gap-2 text-xs font-medium"
         >
           <CheckCircle2 className="w-4 h-4" />
-          ACKNOWLEDGE TRANSMISSION &amp; RETURN
-        </button>
-      </div>
+          Acknowledge &amp; Return
+        </Button>
+      </Card>
     </div>
   );
 };
-
