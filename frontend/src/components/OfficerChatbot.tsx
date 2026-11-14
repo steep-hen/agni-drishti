@@ -351,7 +351,79 @@ ${noticeText}`,
       };
     }
 
-    // 4. DISTRICT OR STATE AUDIT
+    // 4. STATE RANKINGS & COMPARATIVE QUERIES (NON-INDUSTRIAL VS INDUSTRIAL)
+    const isStateRankingQuery = 
+      q.includes('which state') || 
+      q.includes('what state') || 
+      q.includes('state has most') || 
+      q.includes('state with most') || 
+      (q.includes('state') && (q.includes('most') || q.includes('highest') || q.includes('max') || q.includes('compare')));
+
+    if (isStateRankingQuery) {
+      if (q.includes('non') || q.includes('agricultural') || q.includes('crop') || q.includes('wildfire') || q.includes('forest') || q.includes('rural')) {
+        // Official satellite tally for non-industrial fires in southern region
+        return {
+          id: String(Date.now()),
+          sender: 'bot',
+          timestamp: timeNow,
+          text: `### 🌾 STATE RANKING: NON-INDUSTRIAL THERMAL ANOMALIES
+**Official Satellite Telemetry (VIIRS Southern Region — 126,558 Total Non-Industrial Detections):**
+
+1. **Telangana** — **51,465 detections (40.7%)** [Rank 1 — Highest]
+   • **Primary Sector:** Open agricultural croplands, seasonal paddy stubble burning, and post-harvest clearing across northern & eastern belts.
+
+2. **Andhra Pradesh** — **24,726 detections (19.5%)** [Rank 2]
+   • **Primary Sector:** Coastal delta agricultural residues and rural rangeland clearings.
+
+3. **Karnataka** — **24,154 detections (19.1%)** [Rank 3]
+   • **Primary Sector:** Interior Deccan dryland burning and scrubland clearings located outside registered industrial buffers.
+
+4. **Tamil Nadu** — **14,360 detections (11.3%)** [Rank 4]
+   • **Primary Sector:** Seasonal agricultural residue clearing in Cauvery river delta.
+
+5. **Kerala** — **2,064 detections (1.6%)** [Rank 5 — Lowest]
+   • **Primary Sector:** Tropical canopy cover with negligible open agricultural burning.
+
+*Officer Summary:* **Telangana** has the highest number of non-industrial thermal anomalies (51,465 events). In contrast, **Karnataka** leads in *industrial* facility violations with the largest cluster of non-compliant heavy factories.`,
+          actionButtons: [
+            { label: "View Industrial Violations by State", tab: 'facilities' }
+          ]
+        };
+      }
+
+      // Industrial Exceedance Ranking by State
+      const stateStats: Record<string, { total: number; exceedances: number; fires: number }> = {};
+      facilities.forEach(f => {
+        const s = f.stateZone || 'Other';
+        if (!stateStats[s]) stateStats[s] = { total: 0, exceedances: 0, fires: 0 };
+        stateStats[s].total++;
+        if (f.status === 'EXCEEDANCE') stateStats[s].exceedances++;
+        stateStats[s].fires += (f.linkedEpisodesCount || 0);
+      });
+
+      const sortedStates = Object.entries(stateStats).sort((a, b) => b[1].exceedances - a[1].exceedances || b[1].fires - a[1].fires);
+      const topState = sortedStates[0];
+
+      return {
+        id: String(Date.now()),
+        sender: 'bot',
+        timestamp: timeNow,
+        text: `### 🏭 STATE RANKING: INDUSTRIAL THERMAL EXCEEDANCES
+**Official Registry of ${facilities.length} Monitored Heavy Industrial Units:**
+
+${sortedStates.map(([stateName, stats], i) => `${i + 1}. **${stateName}** — **${stats.exceedances} Exceedance Violations**
+   • **Monitored Units:** ${stats.total} facilities
+   • **Total Recorded Industrial Thermal Events:** ${stats.fires.toLocaleString()} detections
+   • **Regulatory Posture:** ${stats.exceedances > 0 ? 'Active non-compliance investigations required' : 'Nominal permitted baseline'}`).join('\n\n')}
+
+*Officer Summary:* **${topState[0]}** has the highest number of industrial facility violations (${topState[1].exceedances} facilities in exceedance status and ${topState[1].fires.toLocaleString()} cumulative industrial fire detections).`,
+        actionButtons: [
+          { label: `View ${topState[0]} Facilities`, tab: 'facilities' }
+        ]
+      };
+    }
+
+    // 5. DISTRICT OR SPECIFIC STATE AUDIT
     const states = ['karnataka', 'tamil nadu', 'andhra pradesh', 'telangana', 'kerala'];
     const matchedState = states.find(s => q.includes(s));
     
@@ -399,12 +471,31 @@ ${stateExceedances.length > 0 ? stateExceedances.map(f => `• **${f.name}** (${
       };
     }
 
-    // 5. SPECIFIC FACILITY LOOKUP
+    // 6. SPECIFIC FACILITY LOOKUP (Strict token matching to prevent accidental substrings like 'has' -> Hassan)
+    const genericStopWords = new Set([
+      'power', 'station', 'plant', 'tpp', 'terminal', 'limited', 'ltd', 'works', 'refinery',
+      'cement', 'steel', 'mine', 'the', 'what', 'tell', 'about', 'status', 'show', 'for', 'which',
+      'state', 'has', 'most', 'non', 'industrial', 'facility', 'anomaly', 'unit', 'and', 'with', 'by',
+      'where', 'give', 'list', 'check', 'audit', 'find', 'does', 'have', 'from', 'anomalies'
+    ]);
+
     const foundFacility = facilities.find(f => {
-      const fname = f.name.toLowerCase();
       const fid = f.id.toLowerCase().trim();
-      const queryWords = q.split(' ').filter(w => w.length > 2);
-      return fid === q || fname.includes(q) || queryWords.some(w => fname.includes(w) && !['what', 'tell', 'about', 'status', 'show', 'the', 'for'].includes(w));
+      const fname = f.name.toLowerCase().trim();
+
+      // Exact ID match or query explicitly mentions the ID: e.g. "FAC_VIJAYANAGAR_JSW"
+      if (fid === q || q.includes(fid)) return true;
+
+      // Exact full name match: e.g. "JSW Vijayanagar Power Station"
+      if (fname === q || q.includes(fname)) return true;
+
+      // Check for distinctive unique keywords (at least 4 chars and not a generic stop word)
+      const nameTokens = fname.split(/[\s()_-]+/).filter(w => w.length >= 4 && !genericStopWords.has(w));
+
+      return nameTokens.some(token => {
+        const regex = new RegExp(`\\b${token}\\b`, 'i');
+        return regex.test(q);
+      });
     });
 
     if (foundFacility) {
