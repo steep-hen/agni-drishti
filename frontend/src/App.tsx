@@ -15,6 +15,7 @@ const AnalyticsTrendsScreen = lazy(() => import('./components/AnalyticsTrendsScr
 const AuthScreen = lazy(() => import('./components/AuthScreen').then(m => ({ default: m.AuthScreen })));
 const LoginModal = lazy(() => import('./components/LoginModal').then(m => ({ default: m.LoginModal })));
 const SearchModal = lazy(() => import('./components/SearchModal').then(m => ({ default: m.SearchModal })));
+import { OfficerChatbot } from './components/OfficerChatbot';
 
 const API = 'http://localhost:3001/api';
 
@@ -394,6 +395,14 @@ export default function App() {
             onLoginSuccess={(a) => setAnalyst(a)}
           />
         </Suspense>
+
+        <OfficerChatbot
+          facilities={facilities}
+          episodes={episodes}
+          onNavigateToTab={setActiveTab}
+          onOpenFacilityDossier={handleOpenFacilityDossier}
+          onOpenMapForFacility={handleSelectEpisodeForMap}
+        />
 
         <DispatchAlertModal
           isOpen={dispatchModalData.isOpen}
