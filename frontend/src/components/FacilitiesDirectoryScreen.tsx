@@ -53,17 +53,33 @@ interface FacilitiesDirectoryScreenProps {
 
 // ── Dynamic 12-month FRP generator ──────────────────────────────────────────
 function generateMonthlyFRP(facility: IndustrialFacility): { month: string; frp: number }[] {
-  // Seed from facility id so the shape is deterministic but unique per facility
-  const seed = facility.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  const base = facility.peakFrp12mMw > 0 ? facility.peakFrp12mMw * 0.6 : 80; // typical monthly mean is ~60% of peak
+  // If the facility has loaded monthlyFRP, use it directly
+  if (facility.monthlyFRP && facility.monthlyFRP.length > 0) {
+    return facility.monthlyFRP.map(m => ({ month: m.month, frp: m.value }));
+  }
+
+  // Fallback: Seed from facility id so the shape is deterministic but unique per facility
+  const seed = Math.abs(facility.id.trim().split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 0));
+  const cap = facility.nominalFrpCapMw || 600;
+  const base = facility.baselineOperatingMw || Math.round(cap * 0.55);
+  const peak = facility.peakFrp12mMw || Math.round(cap * 1.25);
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const peakIdx = seed % 12;
+
   return months.map((month, i) => {
-    // layered sinusoids give realistic seasonal variation without randomness
-    const v1 = Math.sin((seed * 0.031 + i) * 0.9) * 0.35;
-    const v2 = Math.cos((seed * 0.017 + i * 1.7) * 0.5) * 0.18;
-    const v3 = Math.sin((i + seed % 7) * 1.3) * 0.09;
-    const frp = Math.max(5, Math.round((base * (1 + v1 + v2 + v3)) * 10) / 10);
-    return { month, frp };
+    const dist = Math.min(Math.abs(i - peakIdx), 12 - Math.abs(i - peakIdx));
+    let val: number;
+    if (dist === 0) {
+      val = peak;
+    } else if (dist === 1) {
+      val = Math.round(base + (peak - base) * 0.65);
+    } else if (dist === 2) {
+      val = Math.round(base + (peak - base) * 0.30);
+    } else {
+      const v = Math.sin((seed + i * 5) * 0.7) * 0.12;
+      val = Math.max(20, Math.round(base * (1 + v)));
+    }
+    return { month, frp: val };
   });
 }
 
@@ -525,7 +541,7 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                 </div>
                 <div>
                   <label className="text-muted-foreground block mb-1">Expected Peak (MW)</label>
-                  <Input type="number" defaultValue={450} />
+                  <Input type="number" defaultValue={selectedFacility?.peakFrp12mMw || 650} />
                 </div>
               </div>
               <div>
