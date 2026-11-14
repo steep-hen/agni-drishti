@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   Search, 
@@ -10,11 +10,40 @@ import {
   Video, 
   X
 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import { IndustrialFacility } from '../types';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
+
+const facilityReticleIcon = L.divIcon({
+  className: '',
+  html: `
+    <div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+      <div style="position:absolute;width:20px;height:20px;border:2px solid #ef4444;border-radius:50%;box-shadow:0 0 10px rgba(239,68,68,0.9);background:rgba(239,68,68,0.15);"></div>
+      <div style="position:absolute;width:4px;height:4px;background:#ffffff;border-radius:50%;"></div>
+      <div style="position:absolute;width:28px;height:1.5px;background:rgba(239,68,68,0.85);"></div>
+      <div style="position:absolute;height:28px;width:1.5px;background:rgba(239,68,68,0.85);"></div>
+    </div>
+  `,
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+});
+
+const MiniMapResizer: React.FC = () => {
+  const map = useMap();
+  useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 120);
+    const t2 = setTimeout(() => map.invalidateSize(), 500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [map]);
+  return null;
+};
 
 interface FacilitiesDirectoryScreenProps {
   facilities: IndustrialFacility[];
@@ -278,19 +307,34 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                       Satellite Imagery
                     </span>
                     <span className="text-[10px] text-muted-foreground font-mono">
-                      {selectedFacility.satelliteFeed.orbitPass}
+                      {selectedFacility.satelliteFeed?.orbitPass || '12:00 UTC'} • Earth Observation
                     </span>
                   </div>
-                  <div className="h-40 overflow-hidden relative">
-                    <img 
-                      src={selectedFacility.satelliteFeed.imageUrl}
-                      alt="Satellite Feed"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover grayscale contrast-125"
-                    />
-                    <div className="absolute bottom-2 left-2 right-2 bg-background/90 backdrop-blur-md px-2.5 py-1 rounded border border-border text-[11px] text-muted-foreground flex justify-between">
-                      <span>Sensor: {selectedFacility.satelliteFeed.sensor}</span>
-                      <span className="text-foreground font-mono">FOV: {selectedFacility.satelliteFeed.fov}</span>
+                  <div className="h-40 overflow-hidden relative bg-muted">
+                    <MapContainer
+                      key={`fac-satellite-${selectedFacility.id}-${selectedFacility.coordinates.lat}-${selectedFacility.coordinates.lng}`}
+                      center={[selectedFacility.coordinates.lat, selectedFacility.coordinates.lng]}
+                      zoom={15}
+                      zoomControl={false}
+                      attributionControl={false}
+                      dragging={true}
+                      scrollWheelZoom={false}
+                      doubleClickZoom={false}
+                      className="w-full h-full z-0 cursor-grab"
+                    >
+                      <TileLayer
+                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        maxZoom={19}
+                      />
+                      <MiniMapResizer />
+                      <Marker
+                        position={[selectedFacility.coordinates.lat, selectedFacility.coordinates.lng]}
+                        icon={facilityReticleIcon}
+                      />
+                    </MapContainer>
+                    <div className="absolute bottom-2 left-2 right-2 bg-background/90 backdrop-blur-md px-2.5 py-1 rounded border border-border text-[11px] text-muted-foreground flex justify-between z-[400] pointer-events-none">
+                      <span>Sensor: {selectedFacility.satelliteFeed?.sensor || 'VIIRS SNPP'}</span>
+                      <span className="text-foreground font-mono">FOV: {selectedFacility.satelliteFeed?.fov || '5.0 KM²'}</span>
                     </div>
                   </div>
                 </div>

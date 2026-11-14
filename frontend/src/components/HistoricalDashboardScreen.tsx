@@ -43,9 +43,20 @@ import {
 
 const API = 'http://localhost:3001/api';
 
-// Map pan controller for centering on candidates or facilities
+// Map pan controller for centering on candidates or facilities and resizing map tiles
 const MapPanController: React.FC<{ targetCoords: [number, number] | null }> = ({ targetCoords }) => {
   const map = useMap();
+
+  useEffect(() => {
+    // Force Leaflet to compute container dimensions upon mounting
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [map]);
+
   useEffect(() => {
     if (targetCoords) {
       map.flyTo(targetCoords, 11, { duration: 1.2 });
@@ -169,6 +180,7 @@ export const HistoricalDashboardScreen: React.FC<HistoricalDashboardScreenProps>
 
   // Map view state
   const [mapTarget, setMapTarget] = useState<[number, number] | null>([22.0, 82.5]);
+  const [activeBaseLayer, setActiveBaseLayer] = useState<'CANVAS' | 'OSM' | 'SATELLITE'>('CANVAS');
   const [showFacilitiesLayer, setShowFacilitiesLayer] = useState(true);
   const [showDetectionsLayer, setShowDetectionsLayer] = useState(true);
   const [showProximityBuffers, setShowProximityBuffers] = useState(true);
@@ -860,8 +872,43 @@ export const HistoricalDashboardScreen: React.FC<HistoricalDashboardScreenProps>
               </div>
             </div>
 
-            {/* Map Layer Toggles */}
-            <div className="flex items-center gap-1.5 text-xs">
+            {/* Basemap Switcher & Layer Toggles */}
+            <div className="flex items-center gap-1.5 text-xs flex-wrap">
+              <div className="flex items-center bg-muted/60 p-0.5 rounded border border-border">
+                <button
+                  type="button"
+                  onClick={() => setActiveBaseLayer('CANVAS')}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                    activeBaseLayer === 'CANVAS'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Canvas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveBaseLayer('OSM')}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                    activeBaseLayer === 'OSM'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Street
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveBaseLayer('SATELLITE')}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                    activeBaseLayer === 'SATELLITE'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Satellite
+                </button>
+              </div>
               <Button
                 variant={showFacilitiesLayer ? 'secondary' : 'outline'}
                 size="sm"
@@ -888,13 +935,32 @@ export const HistoricalDashboardScreen: React.FC<HistoricalDashboardScreenProps>
               className="w-full h-full min-h-[460px] z-0"
               attributionControl={false}
             >
-              <TileLayer
-                url={
-                  theme === 'dark'
-                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-                }
-              />
+              {activeBaseLayer === 'CANVAS' ? (
+                <TileLayer
+                  key={theme === 'dark' ? 'esri-dark-canvas' : 'esri-light-canvas'}
+                  attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                  url={
+                    theme === 'dark'
+                      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+                      : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+                  }
+                  maxZoom={16}
+                />
+              ) : activeBaseLayer === 'OSM' ? (
+                <TileLayer
+                  key="osm-streets-tiles"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  maxZoom={19}
+                />
+              ) : (
+                <TileLayer
+                  key="esri-satellite-imagery"
+                  attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  maxZoom={19}
+                />
+              )}
 
               <MapPanController targetCoords={mapTarget} />
 

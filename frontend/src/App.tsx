@@ -33,6 +33,15 @@ export default function App() {
   const [facilities, setFacilities] = useState<IndustrialFacility[]>([]);
   const [analyst, setAnalyst] = useState<AnalystUser>(CURRENT_ANALYST);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedMapTarget, setSelectedMapTarget] = useState<{
+    id: string;
+    lat: number;
+    lng: number;
+    risk: string;
+    category: string;
+    frp: number;
+    title: string;
+  } | null>(null);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -164,7 +173,60 @@ export default function App() {
   };
 
   const handleSelectEpisodeToReview = (_id: string) => setActiveTab('review');
-  const handleSelectEpisodeForMap = (_id: string) => setActiveTab('map');
+  const handleSelectEpisodeForMap = (id: string) => {
+    // 1. Look up in loaded episodes
+    const ep = episodes.find((e) => e.id === id);
+    if (ep) {
+      setSelectedMapTarget({
+        id: ep.id,
+        lat: ep.coordinates.lat,
+        lng: ep.coordinates.lng,
+        risk: ep.riskLevel,
+        category: ep.mlInference.toLowerCase(),
+        frp: ep.radiantHeatMw,
+        title: ep.title,
+      });
+      setActiveTab('map');
+      return;
+    }
+
+    // 2. Look up in loaded facilities
+    const fac = facilities.find((f) => f.id === id);
+    if (fac) {
+      setSelectedMapTarget({
+        id: fac.id,
+        lat: fac.coordinates.lat,
+        lng: fac.coordinates.lng,
+        risk: 'CRITICAL',
+        category: fac.category.toLowerCase(),
+        frp: fac.peakFrp12mMw || 100,
+        title: fac.name,
+      });
+      setActiveTab('map');
+      return;
+    }
+
+    // 3. Fallback: fetch from API by ID
+    fetch(`${API}/fires?search=${encodeURIComponent(id)}&limit=1`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.items && data.items.length > 0) {
+          const f = data.items[0];
+          setSelectedMapTarget({
+            id: f.id,
+            lat: f.lat,
+            lng: f.lng,
+            risk: f.risk || 'HIGH',
+            category: (f.classification || 'refinery').toLowerCase(),
+            frp: f.frp || 0,
+            title: f.title || `Anomaly ${f.id}`,
+          });
+        }
+      })
+      .catch(() => {});
+
+    setActiveTab('map');
+  };
   const handleOpenFacilityDossier = (_facilityId?: string) => setActiveTab('facilities');
   const pendingReviewCount = episodes.filter((e) => e.status === 'AWAITING VERIFICATION').length;
 
@@ -231,6 +293,8 @@ export default function App() {
                 <MapDashboardScreen
                   onSelectEpisodeToReview={handleSelectEpisodeToReview}
                   onOpenFacilityDossier={handleOpenFacilityDossier}
+                  targetHotspot={selectedMapTarget}
+                  onClearTargetHotspot={() => setSelectedMapTarget(null)}
                 />
               )}
             </Suspense>

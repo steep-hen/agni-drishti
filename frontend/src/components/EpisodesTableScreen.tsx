@@ -372,6 +372,16 @@ export const EpisodesTableScreen: React.FC<EpisodesTableScreenProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          title="Locate on Tactical Map"
+                          onClick={() => onSelectEpisodeForMap(ep.id)}
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Inspect Details"
                           onClick={() => setDetailModalEpisode(ep)}
                           className="h-7 w-7 text-muted-foreground hover:text-foreground"
                         >

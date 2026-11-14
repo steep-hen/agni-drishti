@@ -23,14 +23,27 @@ type Hotspot = {
 interface MapDashboardScreenProps {
   onSelectEpisodeToReview: (id: string) => void;
   onOpenFacilityDossier: (facilityId?: string) => void;
+  targetHotspot?: Hotspot | null;
+  onClearTargetHotspot?: () => void;
 }
 
-// Controller to smoothly pan/zoom map to selected hotspot
+// Controller to smoothly pan/zoom map to selected hotspot and ensure map tiles resize correctly
 const MapPanController: React.FC<{ selectedHotspot: Hotspot | null }> = ({ selectedHotspot }) => {
   const map = useMap();
+
+  useEffect(() => {
+    // Invalidate map dimensions so Leaflet recalculates and fills container immediately
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [map]);
+
   useEffect(() => {
     if (selectedHotspot) {
-      map.flyTo([selectedHotspot.lat, selectedHotspot.lng], 10, { duration: 1.2 });
+      map.flyTo([selectedHotspot.lat, selectedHotspot.lng], 13, { duration: 1.2 });
     }
   }, [selectedHotspot, map]);
   return null;
@@ -81,13 +94,22 @@ const createCustomIcon = (risk: string, category: string, isSelected: boolean) =
 export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
   onSelectEpisodeToReview,
   onOpenFacilityDossier,
+  targetHotspot,
+  onClearTargetHotspot,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const [activeLayer, setActiveLayer] = useState<'NORMAL' | 'SATELLITE' | 'CANVAS'>('NORMAL');
+  const [activeLayer, setActiveLayer] = useState<'OSM' | 'SATELLITE' | 'CANVAS'>('OSM');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(targetHotspot || null);
   const [allHotspots, setAllHotspots] = useState<Hotspot[]>([]);
+
+  useEffect(() => {
+    if (targetHotspot) {
+      setSelectedCategory('ALL');
+      setSelectedHotspot(targetHotspot);
+    }
+  }, [targetHotspot]);
 
   useEffect(() => {
     fetch(`${API}/fires/map`)
@@ -100,6 +122,12 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
     ? allHotspots
     : allHotspots.filter((h) => h.category === selectedCategory.toLowerCase());
 
+  // Guarantee that selectedHotspot is always rendered as a marker on the map
+  const hasSelectedMarker = selectedHotspot && filteredHotspots.some((h) => h.id === selectedHotspot.id);
+  const displayedMarkers = selectedHotspot && !hasSelectedMarker
+    ? [selectedHotspot, ...filteredHotspots]
+    : filteredHotspots;
+
   const criticalCount = allHotspots.filter((h) => h.risk === 'CRITICAL').length;
 
   return (
@@ -110,8 +138,8 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
         {/* Layer Switcher */}
         <div className="pointer-events-auto flex items-center bg-card/95 backdrop-blur-md p-1 rounded-md border border-border shadow-md">
           {([
-            { id: 'NORMAL' as const, label: 'Standard Map' },
-            { id: 'SATELLITE' as const, label: 'Satellite Imagery' },
+            { id: 'OSM' as const, label: 'Street Map (OSM)' },
+            { id: 'SATELLITE' as const, label: 'Satellite' },
             { id: 'CANVAS' as const, label: isDark ? 'Dark Canvas' : 'Light Canvas' },
           ]).map((layer) => (
             <button
@@ -191,12 +219,11 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
           zoomControl={false}
           className="w-full h-full bg-background"
         >
-          {activeLayer === 'NORMAL' ? (
+          {activeLayer === 'OSM' ? (
             <TileLayer
-              key="normal-streets-tiles"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              subdomains={['a', 'b', 'c', 'd']}
+              key="osm-streets-tiles"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
               maxZoom={19}
             />
           ) : activeLayer === 'SATELLITE' ? (
@@ -222,7 +249,7 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
           <MapPanController selectedHotspot={selectedHotspot} />
 
           <MarkerClusterGroup chunkedLoading maxClusterRadius={60}>
-            {filteredHotspots.map((h) => (
+            {displayedMarkers.map((h) => (
               <Marker
                 key={h.id}
                 position={[h.lat, h.lng]}
@@ -252,7 +279,10 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setSelectedHotspot(null)}
+                onClick={() => {
+                  setSelectedHotspot(null);
+                  if (onClearTargetHotspot) onClearTargetHotspot();
+                }}
                 className="h-6 w-6 text-muted-foreground hover:text-foreground"
               >
                 <X className="w-3.5 h-3.5" />
