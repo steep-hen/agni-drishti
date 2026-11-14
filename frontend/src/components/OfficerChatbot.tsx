@@ -12,7 +12,9 @@ import {
   AlertTriangle, 
   FileText, 
   ChevronRight,
-  Bot
+  Bot,
+  KeyRound,
+  Sparkles
 } from 'lucide-react';
 import { IndustrialFacility, ThermalEpisode, ScreenTab } from '../types';
 import { Badge } from './ui/badge';
@@ -203,6 +205,10 @@ export const OfficerChatbot: React.FC<OfficerChatbotProps> = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [inputQuery, setInputQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
+  const [geminiKey, setGeminiKey] = useState<string>(() => localStorage.getItem('GEMINI_API_KEY') || '');
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -562,7 +568,14 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
     };
   };
 
-  const handleSend = (textToSend?: string) => {
+  const handleSaveKey = (key: string) => {
+    const trimmed = key.trim();
+    setGeminiKey(trimmed);
+    localStorage.setItem('GEMINI_API_KEY', trimmed);
+    setShowKeyModal(false);
+  };
+
+  const handleSend = async (textToSend?: string) => {
     const query = textToSend || inputQuery;
     if (!query.trim()) return;
 
@@ -575,12 +588,47 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
 
     setMessages(prev => [...prev, userMsg]);
     setInputQuery('');
+    setIsThinking(true);
 
-    // Process deterministically
+    try {
+      // 1. Try backend Gemini API
+      const res = await fetch('http://localhost:3001/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query: query.trim(), 
+          customApiKey: geminiKey || undefined 
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply) {
+          const isNotice = data.reply.includes('SHOW-CAUSE') || data.reply.includes('NOTICE');
+          setMessages(prev => [
+            ...prev,
+            {
+              id: String(Date.now()),
+              sender: 'bot',
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              text: data.reply,
+              isNotice,
+            }
+          ]);
+          setIsThinking(false);
+          return;
+        }
+      }
+    } catch (err) {
+      // Network or API failure, fallback gracefully below
+    }
+
+    // 2. Fallback to deterministic grounded rule engine
     setTimeout(() => {
       const botReply = processOfficerQuery(query);
       setMessages(prev => [...prev, botReply]);
-    }, 250);
+      setIsThinking(false);
+    }, 200);
   };
 
   const handleActionButton = (btn: { label: string; tab?: ScreenTab; facilityId?: string }) => {
@@ -648,6 +696,18 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => {
+                  setKeyInput(geminiKey);
+                  setShowKeyModal(!showKeyModal);
+                }}
+                className={`h-6 w-6 ${geminiKey ? 'text-amber-400 hover:text-amber-300' : 'text-muted-foreground hover:text-foreground'}`}
+                title={geminiKey ? "Gemini AI Key Active (Click to edit)" : "Configure Gemini API Key"}
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="h-6 w-6 text-muted-foreground hover:text-foreground"
                 title={isMinimized ? "Expand" : "Minimize"}
@@ -665,6 +725,47 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
               </Button>
             </div>
           </div>
+
+          {/* API Key Modal / Dropdown */}
+          {showKeyModal && (
+            <div className="p-3 bg-secondary/95 border-b border-border text-xs space-y-2 z-10 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Gemini AI Reasoning Engine
+                </span>
+                <button onClick={() => setShowKeyModal(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                Paste your Google Gemini API key to enable high-order semantic reasoning across the spatial registry.
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="password"
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  placeholder="Paste AIzaSy... key"
+                  className="flex-1 bg-card border border-border rounded px-2.5 py-1 text-xs text-foreground placeholder:text-muted-foreground font-mono focus:outline-none focus:border-orange-500/60"
+                />
+                <Button size="sm" onClick={() => handleSaveKey(keyInput)} className="h-7 text-xs bg-orange-600 hover:bg-orange-500 text-white font-medium">
+                  Save
+                </Button>
+                {geminiKey && (
+                  <Button size="sm" variant="ghost" onClick={() => handleSaveKey('')} className="h-7 text-xs text-muted-foreground hover:text-destructive">
+                    Clear
+                  </Button>
+                )}
+              </div>
+              {geminiKey && (
+                <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Key configured • Connected to Gemini 2.0 / 1.5 Flash
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Body (Messages) */}
           {!isMinimized && (
@@ -743,6 +844,12 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
                     </div>
                   </div>
                 ))}
+                {isThinking && (
+                  <div className="flex items-center gap-2 px-2 py-1 text-muted-foreground text-xs italic">
+                    <span className="w-2 h-2 rounded-full bg-orange-400 animate-ping"></span>
+                    <span className="font-mono text-[11px] text-orange-400">Officer Copilot analyzing registry data...</span>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

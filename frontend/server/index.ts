@@ -3,9 +3,13 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import { GoogleGenAI } from '@google/genai';
 import { historicalRouter } from './historical.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 const app = express();
 const PORT = 3001;
 
@@ -401,6 +405,79 @@ app.get('/api/analytics', (req, res) => {
     prevailingTrajectory: currentMeta.trajectory,
     downwindZone: currentMeta.downwind,
   });
+});
+
+// --- GEMINI POWERED OFFICER COPILOT API ---
+app.post('/api/chat', async (req, res) => {
+  const { query, customApiKey } = req.body;
+  const apiKey = (customApiKey || process.env.GEMINI_API_KEY || '').trim();
+
+  if (!apiKey) {
+    return res.status(400).json({ error: 'NO_API_KEY', message: 'Gemini API key is not configured.' });
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+
+    // Gather grounded facility data context
+    const topViolators = facilitiesData
+      .filter((f: any) => f.status === 'EXCEEDANCE')
+      .slice(0, 15)
+      .map((f: any) => `• ${f.name} (ID: ${f.id.trim()}, District: ${f.district.trim()}, State: ${f.state.trim()}, Status: ${f.status}, Risk Score: ${f.risk_score}, Fire Detections: ${f.fire_count}, Radiance Mean: ${f.avg_frp} MW)`)
+      .join('\n');
+
+    const systemInstruction = `You are the Senior Environmental Compliance & Enforcement Officer AI Desk for the National Thermal Radiation Surveillance System (covering Southern Industrial Zone: Karnataka, Tamil Nadu, Andhra Pradesh, Telangana, Kerala).
+You assist Government Regulators, Pollution Control Boards (CPCB/SPCB), and Ministry Inspectors.
+
+OFFICIAL VERIFIED REGISTRY FACTS:
+* Total Monitored Industrial Facilities: 208 heavy units (thermal power plants, refineries, petrochemicals, steel plants, cement, mines).
+* Monitored States: Karnataka (127 facilities, highest industrial cluster), Tamil Nadu (48 facilities), Andhra Pradesh (21 facilities), Telangana (9 facilities), Kerala (3 facilities).
+* Non-Industrial Thermal Anomalies (Total 126,558 satellite fire events - mainly agricultural stubble/biomass burning):
+  1. Telangana: 51,465 detections (40.7% - Highest non-industrial fires)
+  2. Andhra Pradesh: 24,726 detections (19.5%)
+  3. Karnataka: 24,154 detections (19.1%)
+  4. Tamil Nadu: 14,360 detections (11.3%)
+  5. Kerala: 2,064 detections (1.6% - Lowest)
+* Industrial Facility Violations & Exceedance:
+  - Karnataka leads with the highest number of non-compliant industrial facilities and thermal fire detections.
+* Key Exceedance Facilities currently on record:
+${topViolators}
+
+CORE OPERATIONAL RULES:
+1. Ground your answers strictly on the official registry facts above. Never hallucinate or make up facility names, IDs, numbers, or permit caps.
+2. If asked about state rankings (e.g. non-industrial vs industrial anomalies), provide the exact ranking with the official detection numbers.
+3. If an officer asks to draft a Show-Cause Notice, generate an official, formal legal notice citing the facility ID, Section 31A of the Air Act, and the recorded violations.
+4. If an officer asks for information not in the database (e.g. company executives, stock prices, weather, personal queries), explicitly state: "Information not available in official registry records."
+5. Format your response cleanly using bold headers (### Title), clean bullet points (•), and structured sections.`;
+
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: query,
+        config: {
+          systemInstruction,
+          temperature: 0.2,
+        }
+      });
+    } catch (e) {
+      // Fallback to gemini-1.5-flash if 2.0-flash is not available in that region
+      response = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: query,
+        config: {
+          systemInstruction,
+          temperature: 0.2,
+        }
+      });
+    }
+
+    const replyText = response.text || 'No response generated.';
+    res.json({ reply: replyText, source: 'gemini' });
+  } catch (err: any) {
+    console.error('Gemini API error:', err);
+    res.status(500).json({ error: 'GEMINI_ERROR', message: err.message || 'Error communicating with Gemini API' });
+  }
 });
 
 app.listen(PORT, () => {
