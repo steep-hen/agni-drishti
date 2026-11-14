@@ -61,15 +61,15 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('map')} 
           className="cursor-pointer flex items-center gap-2.5 group"
         >
-          <div className="h-7 w-7 rounded-md bg-secondary border border-border flex items-center justify-center text-foreground group-hover:bg-accent transition-colors">
-            <Flame className="w-4 h-4" />
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-amber-600 via-orange-500 to-red-500 border border-orange-400/40 flex items-center justify-center text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition-transform">
+            <Flame className="w-4 h-4 fill-white/20" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-xs tracking-tight text-foreground">
+              <span className="font-bold text-sm tracking-tight bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-300 bg-clip-text text-transparent">
                 Agni-Drishti
               </span>
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-[10px] text-orange-400 font-mono font-semibold px-1 py-0.5 rounded bg-orange-500/10 border border-orange-500/20">
                 v2.1
               </span>
             </div>
@@ -80,15 +80,15 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="hidden xl:flex items-center gap-2 pl-3 border-l border-border text-[11px] text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          <span className="text-foreground">VIIRS / MODIS</span>
+          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/60 animate-pulse" />
+          <span className="text-emerald-400 font-medium font-mono">VIIRS / MODIS</span>
           <span>•</span>
-          <span>Southern Sector</span>
+          <span className="text-sky-400 font-medium">Southern Sector</span>
         </div>
       </div>
 
       {/* Modular Navigation Bar */}
-      <nav className="hidden lg:flex items-center gap-1 bg-secondary/60 p-1 rounded-md border border-border">
+      <nav className="hidden lg:flex items-center gap-1 bg-secondary/80 p-1 rounded-lg border border-border shadow-xs">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -96,19 +96,19 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition-colors ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition-all ${
                 isActive
-                  ? 'bg-background text-foreground font-medium shadow-sm border border-border'
+                  ? 'bg-gradient-to-r from-orange-500/15 to-amber-500/15 text-orange-400 font-semibold shadow-xs border border-orange-500/30'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-orange-400' : 'text-muted-foreground'}`} />
               <span>{item.label}</span>
               {typeof item.badge === 'number' && item.badge > 0 && (
-                <span className={`px-1.5 py-0.2 text-[10px] font-mono rounded-full font-medium ${
+                <span className={`px-1.5 py-0.2 text-[10px] font-mono rounded-full font-bold ${
                   isActive 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-secondary text-muted-foreground border border-border'
+                    ? 'bg-orange-500 text-white shadow-xs shadow-orange-500/50' 
+                    : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
                 }`}>
                   {item.badge}
                 </span>

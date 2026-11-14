@@ -51,6 +51,28 @@ interface FacilitiesDirectoryScreenProps {
   onOpenMapForFacility: (facilityId: string) => void;
 }
 
+// ── Dynamic 12-month FRP generator ──────────────────────────────────────────
+function generateMonthlyFRP(facility: IndustrialFacility): { month: string; frp: number }[] {
+  // Seed from facility id so the shape is deterministic but unique per facility
+  const seed = facility.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const base = facility.peakFrp12mMw > 0 ? facility.peakFrp12mMw * 0.6 : 80; // typical monthly mean is ~60% of peak
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months.map((month, i) => {
+    // layered sinusoids give realistic seasonal variation without randomness
+    const v1 = Math.sin((seed * 0.031 + i) * 0.9) * 0.35;
+    const v2 = Math.cos((seed * 0.017 + i * 1.7) * 0.5) * 0.18;
+    const v3 = Math.sin((i + seed % 7) * 1.3) * 0.09;
+    const frp = Math.max(5, Math.round((base * (1 + v1 + v2 + v3)) * 10) / 10);
+    return { month, frp };
+  });
+}
+
+// Map frp value → SVG Y coordinate (SVG viewBox height 120, data area rows 10–110)
+function frpToY(frp: number, maxFrp: number): number {
+  const pct = Math.min(frp / maxFrp, 1.2); // allow slight overflow
+  return Math.round(110 - pct * 100);
+}
+
 export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps> = ({
   facilities,
   onInspectEpisode,
@@ -175,34 +197,34 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                   onClick={() => setSelectedFacilityId(fac.id)}
                   className={`p-3.5 transition-all cursor-pointer border ${
                     isSelected
-                      ? 'border-foreground/80 bg-secondary/40 shadow-sm'
-                      : 'border-border bg-card hover:bg-secondary/20 hover:border-border/80'
+                      ? 'border-l-4 border-l-orange-500 border-orange-500/50 bg-orange-500/5 shadow-md shadow-orange-500/10'
+                      : 'border-border bg-card/80 hover:bg-secondary/40 hover:border-border/90'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-medium text-foreground">
+                    <span className="font-mono text-xs font-semibold text-sky-400">
                       {fac.id}
                     </span>
                     <Badge 
-                      variant={fac.status === 'EXCEEDANCE' ? 'destructive' : 'secondary'}
-                      className="text-[10px] h-4 px-1.5"
+                      variant={fac.status === 'EXCEEDANCE' ? 'destructive' : 'success'}
+                      className="text-[10px] h-4 px-1.5 font-bold tracking-wide shadow-xs"
                     >
                       {fac.status}
                     </Badge>
                   </div>
 
-                  <h3 className="text-xs font-medium text-foreground mt-1 leading-snug line-clamp-1">
+                  <h3 className="text-xs font-semibold text-foreground mt-1.5 leading-snug line-clamp-1">
                     {fac.name}
                   </h3>
                   <div className="text-[11px] text-muted-foreground mt-0.5">
-                    {fac.stateZone} • {fac.bufferRadiusKm} km Buffer
+                    {fac.stateZone} • <span className="text-emerald-400 font-mono">{fac.bufferRadiusKm} km</span> Buffer
                   </div>
 
                   <div className="mt-2 pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono">
                     <span className="text-muted-foreground">
-                      Anomalies: <strong className="text-foreground">{fac.linkedEpisodesCount}</strong>
+                      Anomalies: <strong className="text-red-400 font-bold">{fac.linkedEpisodesCount}</strong>
                     </span>
-                    <span className="text-foreground">
+                    <span className="text-sky-400 font-medium">
                       Cap: {fac.nominalFrpCapMw} MW
                     </span>
                   </div>
@@ -247,29 +269,29 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                     variant="outline"
                     size="sm"
                     onClick={() => onOpenMapForFacility(selectedFacility.id)}
-                    className="gap-1.5 text-xs"
+                    className="gap-1.5 text-xs border-sky-500/40 text-sky-400 hover:bg-sky-500/15 hover:border-sky-500 font-semibold transition-colors"
                   >
                     <MapPin className="w-3.5 h-3.5" />
-                    Locate on Map
+                    Locate on Tactical Map
                   </Button>
                 </div>
               </div>
 
               {/* 4 Metric Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-secondary/30 p-3 rounded-md border border-border">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Permit FRP Cap</div>
-                  <div className="text-lg font-medium font-mono text-foreground mt-0.5">
+                <div className="bg-sky-500/5 p-3 rounded-md border border-border border-l-3 border-l-sky-500 shadow-xs">
+                  <div className="text-[10px] text-sky-400/90 font-medium uppercase tracking-wider">Permit FRP Cap</div>
+                  <div className="text-xl font-bold font-mono text-sky-400 mt-0.5">
                     {selectedFacility.nominalFrpCapMw} MW
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                  <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
                     Baseline: {selectedFacility.baselineOperatingMw} MW
                   </div>
                 </div>
 
-                <div className="bg-secondary/30 p-3 rounded-md border border-border">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Monitored Stacks</div>
-                  <div className="text-lg font-medium font-mono text-foreground mt-0.5">
+                <div className="bg-purple-500/5 p-3 rounded-md border border-border border-l-3 border-l-purple-500 shadow-xs">
+                  <div className="text-[10px] text-purple-400/90 font-medium uppercase tracking-wider">Monitored Stacks</div>
+                  <div className="text-xl font-bold font-mono text-purple-400 mt-0.5">
                     {selectedFacility.registeredStacks}
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">
@@ -277,23 +299,23 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                   </div>
                 </div>
 
-                <div className="bg-secondary/30 p-3 rounded-md border border-border">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Peak Radiance (12m)</div>
-                  <div className="text-lg font-medium font-mono text-foreground mt-0.5">
+                <div className="bg-amber-500/5 p-3 rounded-md border border-border border-l-3 border-l-amber-500 shadow-xs">
+                  <div className="text-[10px] text-amber-400/90 font-medium uppercase tracking-wider">Peak Radiance (12m)</div>
+                  <div className="text-xl font-bold font-mono text-amber-400 mt-0.5">
                     {selectedFacility.peakFrp12mMw} MW
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">
-                    Historical Peak
+                  <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                    Historical VIIRS Peak
                   </div>
                 </div>
 
-                <div className="bg-secondary/30 p-3 rounded-md border border-border">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Risk Evaluation</div>
-                  <div className="text-lg font-medium font-mono text-foreground mt-0.5">
+                <div className="bg-red-500/5 p-3 rounded-md border border-border border-l-3 border-l-red-500 shadow-xs">
+                  <div className="text-[10px] text-red-400/90 font-medium uppercase tracking-wider">Risk Evaluation</div>
+                  <div className="text-xl font-bold font-mono text-red-400 mt-0.5">
                     {selectedFacility.bufferOverlaps}
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">
-                    Normalized Score
+                    Composite Threat Index
                   </div>
                 </div>
               </div>
@@ -362,76 +384,113 @@ export const FacilitiesDirectoryScreen: React.FC<FacilitiesDirectoryScreenProps>
                 </div>
               </div>
 
-              {/* 12-Month FRP Trend Chart */}
-              <div className="p-4 rounded-md border border-border bg-secondary/20 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <span className="font-medium text-foreground flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5" />
-                    12-Month Thermal Radiance Profile (MW)
-                  </span>
-                  <div className="flex items-center gap-4 text-[11px] font-mono text-muted-foreground">
-                    <span className="flex items-center gap-1 text-foreground">
-                      <span className="w-2.5 h-0.5 bg-foreground" />
-                      Mean FRP
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <span className="w-2.5 h-0.5 bg-neutral-500 dark:bg-zinc-600 border-dashed" />
-                      Permit Threshold (600 MW)
-                    </span>
+              {/* 12-Month FRP Trend Chart — dynamic per facility */}
+              {(() => {
+                const monthlyData = generateMonthlyFRP(selectedFacility);
+                const permitThreshold = selectedFacility.nominalFrpCapMw || 600;
+                const peakVal = Math.max(...monthlyData.map(d => d.frp));
+                const axisMax = Math.max(peakVal * 1.25, permitThreshold * 1.1);
+                const thresholdY = frpToY(permitThreshold, axisMax);
+                const peakMonth = monthlyData.reduce((a, b) => a.frp > b.frp ? a : b);
+                const peakIdx = monthlyData.indexOf(peakMonth);
+                const xs = monthlyData.map((_, i) => 50 + i * 83);
+                const ys = monthlyData.map(d => frpToY(d.frp, axisMax));
+                const polyPoints = xs.map((x, i) => `${x},${ys[i]}`).join(' ');
+                // area fill gradient
+                const areaPoints = `${xs[0]},110 ` + xs.map((x, i) => `${x},${ys[i]}`).join(' ') + ` ${xs[xs.length-1]},110`;
+                return (
+                  <div className="p-4 rounded-md border border-border bg-secondary/20 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="font-medium text-foreground flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-orange-400" />
+                        12-Month Thermal Radiance Profile (MW)
+                      </span>
+                      <div className="flex items-center gap-4 text-[11px] font-mono text-muted-foreground">
+                        <span className="flex items-center gap-1 text-orange-400">
+                          <span className="w-2.5 h-0.5 bg-orange-400 inline-block" />
+                          Mean FRP
+                        </span>
+                        <span className="flex items-center gap-1 text-red-400">
+                          <span className="w-2.5 h-0.5 bg-red-400 inline-block" style={{borderTop:'2px dashed'}} />
+                          Permit Cap ({permitThreshold} MW)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="h-36 w-full pt-1">
+                      <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 125">
+                        <defs>
+                          <linearGradient id={`frp-grad-${selectedFacility.id}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#f97316" stopOpacity="0.35" />
+                            <stop offset="100%" stopColor="#f97316" stopOpacity="0.02" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Gridlines */}
+                        {[0, 25, 50, 75, 100].map(pct => {
+                          const gy = 110 - pct;
+                          return (
+                            <line key={pct} x1="0" y1={gy} x2="1000" y2={gy}
+                              stroke="var(--border)" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+                          );
+                        })}
+
+                        {/* Y-axis value labels */}
+                        {[0, 0.5, 1].map(frac => {
+                          const val = Math.round(axisMax * frac);
+                          const gy = frpToY(axisMax * frac, axisMax);
+                          return (
+                            <text key={frac} x="4" y={gy + 3}
+                              fill="var(--muted-foreground)" fontSize="8" fontFamily="monospace">
+                              {val}
+                            </text>
+                          );
+                        })}
+
+                        {/* Permit threshold line */}
+                        <line x1="0" y1={thresholdY} x2="1000" y2={thresholdY}
+                          stroke="#f87171" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.85" />
+                        <text x="12" y={thresholdY - 4}
+                          fill="#f87171" fontSize="8" fontFamily="monospace">
+                          Cap: {permitThreshold} MW
+                        </text>
+
+                        {/* Area fill */}
+                        <polygon points={areaPoints} fill={`url(#frp-grad-${selectedFacility.id})`} />
+
+                        {/* FRP line */}
+                        <polyline fill="none" stroke="#f97316" strokeWidth="2.5"
+                          strokeLinejoin="round" strokeLinecap="round" points={polyPoints} />
+
+                        {/* Data dots */}
+                        {xs.map((x, i) => (
+                          <circle key={i} cx={x} cy={ys[i]} r="3"
+                            fill="#f97316" stroke="var(--card)" strokeWidth="1.5" />
+                        ))}
+
+                        {/* Peak annotation */}
+                        <circle cx={xs[peakIdx]} cy={ys[peakIdx]} r="5"
+                          fill="#f97316" stroke="var(--card)" strokeWidth="2" />
+                        <text
+                          x={xs[peakIdx] > 850 ? xs[peakIdx] - 95 : xs[peakIdx] - 10}
+                          y={ys[peakIdx] - 8}
+                          fill="#fb923c" fontSize="8.5" fontFamily="monospace" fontWeight="bold">
+                          Peak: {peakMonth.frp} MW
+                        </text>
+
+                        {/* Month labels */}
+                        {monthlyData.map((d, i) => (
+                          <text key={d.month} x={xs[i]} y="122"
+                            textAnchor="middle" fill="var(--muted-foreground)"
+                            fontSize="9" fontFamily="monospace">
+                            {d.month}
+                          </text>
+                        ))}
+                      </svg>
+                    </div>
                   </div>
-                </div>
-
-                <div className="h-32 w-full pt-2">
-                  <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 120">
-                    <line x1="0" y1="20" x2="1000" y2="20" stroke="var(--border)" strokeWidth="1" strokeDasharray="3 3" />
-                    <line x1="0" y1="60" x2="1000" y2="60" stroke="var(--border)" strokeWidth="1" strokeDasharray="3 3" />
-                    <line x1="0" y1="100" x2="1000" y2="100" stroke="var(--border)" strokeWidth="1" />
-
-                    <line x1="0" y1="60" x2="1000" y2="60" stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 4" opacity="0.6" />
-                    <text x="10" y="54" fill="var(--muted-foreground)" fontSize="9" fontFamily="monospace">
-                      Threshold Cap: 600 MW
-                    </text>
-
-                    <polyline
-                      fill="none"
-                      stroke="var(--foreground)"
-                      strokeWidth="2"
-                      points="
-                        50,85
-                        133,82
-                        216,87
-                        300,89
-                        383,84
-                        466,86
-                        550,80
-                        633,82
-                        716,76
-                        800,73
-                        883,15
-                        966,62
-                      "
-                    />
-                    <circle cx="883" cy="15" r="4" fill="var(--foreground)" stroke="var(--card)" strokeWidth="2" />
-                    <text x="820" y="30" fill="var(--foreground)" fontSize="9" fontFamily="monospace" fontWeight="bold">
-                      Spike: 1,240 MW
-                    </text>
-
-                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, idx) => (
-                      <text
-                        key={m}
-                        x={50 + idx * 83}
-                        y="115"
-                        textAnchor="middle"
-                        fill="var(--muted-foreground)"
-                        fontSize="9"
-                        fontFamily="monospace"
-                      >
-                        {m}
-                      </text>
-                    ))}
-                  </svg>
-                </div>
-              </div>
+                );
+              })()}
             </Card>
           ) : (
             <Card className="p-12 text-center text-muted-foreground">

@@ -159,17 +159,23 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
         {/* Category Filters */}
         <div className="pointer-events-auto flex items-center gap-1 bg-card/95 backdrop-blur-md p-1 rounded-md border border-border shadow-md text-xs">
           <span className="text-muted-foreground px-2 text-[11px] font-medium hidden sm:inline">Category:</span>
-          {['ALL', 'Wildfire', 'Refinery', 'Thermal', 'Mine'].map((cat) => (
+          {([
+            { id: 'ALL', label: 'All', color: 'bg-primary text-primary-foreground' },
+            { id: 'Wildfire', label: 'Wildfire', color: 'bg-amber-500 text-white', textCol: 'text-amber-400 hover:bg-amber-500/10' },
+            { id: 'Refinery', label: 'Refinery', color: 'bg-sky-500 text-white', textCol: 'text-sky-400 hover:bg-sky-500/10' },
+            { id: 'Thermal', label: 'Thermal', color: 'bg-orange-500 text-white', textCol: 'text-orange-400 hover:bg-orange-500/10' },
+            { id: 'Mine', label: 'Mine', color: 'bg-purple-500 text-white', textCol: 'text-purple-400 hover:bg-purple-500/10' },
+          ]).map((cat) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-2.5 py-1 rounded text-xs transition-colors ${
-                selectedCategory === cat
-                  ? 'bg-primary text-primary-foreground font-medium shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-2.5 py-1 rounded text-xs transition-colors font-medium ${
+                selectedCategory === cat.id
+                  ? `${cat.color} font-semibold shadow-xs`
+                  : cat.textCol || 'text-muted-foreground hover:text-foreground hover:bg-secondary'
               }`}
             >
-              {cat}
+              {cat.label}
             </button>
           ))}
         </div>
@@ -177,36 +183,38 @@ export const MapDashboardScreen: React.FC<MapDashboardScreenProps> = ({
 
       {/* Floating Metrics HUD Cards */}
       <div className="absolute top-16 left-4 z-[1000] space-y-2 pointer-events-none hidden md:block">
-        <Card className="pointer-events-auto w-60 bg-card/95 backdrop-blur-md border-border shadow-md">
+        <Card className="pointer-events-auto w-60 bg-card/95 backdrop-blur-md border-border border-t-2 border-t-red-500 shadow-xl">
           <CardHeader className="p-3 pb-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground font-medium">Critical Detections</span>
-              <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-mono">P0</Badge>
+              <span className="text-[11px] text-red-400 font-semibold uppercase tracking-wider">Critical Detections</span>
+              <Badge variant="destructive" className="text-[10px] h-4 px-1.5 font-mono font-bold animate-pulse">P0</Badge>
             </div>
-            <div className="text-2xl font-semibold font-mono text-foreground mt-0.5">
+            <div className="text-2xl font-bold font-mono text-red-500 mt-0.5">
               {criticalCount}
             </div>
           </CardHeader>
-          <CardContent className="p-3 pt-1 text-[11px] text-muted-foreground">
-            Southern Sector • 375m Resolution
+          <CardContent className="p-3 pt-1 text-[11px] text-muted-foreground flex items-center justify-between">
+            <span>Southern Sector</span>
+            <span className="text-amber-400 font-mono">375m VIIRS</span>
           </CardContent>
         </Card>
 
-        <Card className="pointer-events-auto w-60 bg-card/95 backdrop-blur-md border-border shadow-md">
+        <Card className="pointer-events-auto w-60 bg-card/95 backdrop-blur-md border-border border-t-2 border-t-sky-500 shadow-xl">
           <CardHeader className="p-3 pb-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5" />
+              <span className="text-[11px] text-sky-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-sky-400" />
                 Monitored Sites
               </span>
-              <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-mono">Cadastre</Badge>
+              <Badge variant="info" className="text-[10px] h-4 px-1.5 font-mono font-bold">Cadastre</Badge>
             </div>
-            <div className="text-2xl font-semibold font-mono text-foreground mt-0.5">
+            <div className="text-2xl font-bold font-mono text-sky-400 mt-0.5">
               208
             </div>
           </CardHeader>
-          <CardContent className="p-3 pt-1 text-[11px] text-muted-foreground">
-            Thermal Power &amp; Refineries
+          <CardContent className="p-3 pt-1 text-[11px] text-muted-foreground flex items-center justify-between">
+            <span>Thermal &amp; Refineries</span>
+            <span className="text-emerald-400 font-mono">100% Online</span>
           </CardContent>
         </Card>
       </div>

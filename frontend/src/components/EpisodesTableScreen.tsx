@@ -349,22 +349,56 @@ export const EpisodesTableScreen: React.FC<EpisodesTableScreenProps> = ({
                     </td>
 
                     <td className="p-3">
-                      <Badge variant="outline" className="font-mono text-[10px]">
-                        {ep.mlInference}
-                      </Badge>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {ep.mlInference.toLowerCase().includes('wildfire') ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs">
+                          🔥 {ep.mlInference}
+                        </span>
+                      ) : ep.mlInference.toLowerCase().includes('refinery') ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30 shadow-xs">
+                          🏭 {ep.mlInference}
+                        </span>
+                      ) : ep.mlInference.toLowerCase().includes('thermal') ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30 shadow-xs">
+                          ⚡ {ep.mlInference}
+                        </span>
+                      ) : ep.mlInference.toLowerCase().includes('mine') ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30 shadow-xs">
+                          ⛏️ {ep.mlInference}
+                        </span>
+                      ) : (
+                        <Badge variant="outline" className="font-mono text-[10px]">
+                          {ep.mlInference}
+                        </Badge>
+                      )}
+                      <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
                         {ep.confidence}% Certainty
                       </div>
                     </td>
 
-                    <td className="p-3 font-mono font-medium text-foreground">
-                      {ep.radiantHeatMw} MW
+                    <td className="p-3">
+                      <span className={`font-mono font-bold text-sm ${ep.radiantHeatMw > 20 ? 'text-red-400' : ep.radiantHeatMw > 5 ? 'text-orange-400' : 'text-amber-400'}`}>
+                        {ep.radiantHeatMw} MW
+                      </span>
                     </td>
 
                     <td className="p-3">
-                      <Badge variant={ep.riskLevel === 'CRITICAL' ? 'destructive' : 'secondary'}>
-                        {ep.riskLevel}
-                      </Badge>
+                      {ep.riskLevel === 'CRITICAL' ? (
+                        <Badge variant="destructive" className="font-mono text-[10px] font-bold tracking-wider shadow-sm shadow-red-500/30 animate-pulse">
+                          CRITICAL
+                        </Badge>
+                      ) : ep.riskLevel === 'HIGH' ? (
+                        <Badge variant="warning" className="font-mono text-[10px] font-bold tracking-wider shadow-xs shadow-amber-500/30">
+                          HIGH
+                        </Badge>
+                      ) : ep.riskLevel === 'MODERATE' ? (
+                        <Badge variant="info" className="font-mono text-[10px] font-medium">
+                          MODERATE
+                        </Badge>
+                      ) : (
+                        <Badge variant="success" className="font-mono text-[10px] font-medium">
+                          ROUTINE
+                        </Badge>
+                      )}
                     </td>
 
                     <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
@@ -374,7 +408,7 @@ export const EpisodesTableScreen: React.FC<EpisodesTableScreenProps> = ({
                           size="icon"
                           title="Locate on Tactical Map"
                           onClick={() => onSelectEpisodeForMap(ep.id)}
-                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          className="h-7 w-7 text-sky-400 hover:text-sky-300 hover:bg-sky-500/15 transition-colors"
                         >
                           <MapPin className="w-3.5 h-3.5" />
                         </Button>
@@ -383,7 +417,7 @@ export const EpisodesTableScreen: React.FC<EpisodesTableScreenProps> = ({
                           size="icon"
                           title="Inspect Details"
                           onClick={() => setDetailModalEpisode(ep)}
-                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          className="h-7 w-7 text-blue-400 hover:text-blue-300 hover:bg-blue-500/15 transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </Button>
@@ -391,7 +425,7 @@ export const EpisodesTableScreen: React.FC<EpisodesTableScreenProps> = ({
                           variant="outline"
                           size="sm"
                           onClick={() => onSelectEpisodeToReview(ep.id)}
-                          className="h-7 text-[11px] px-2"
+                          className="h-7 text-[11px] px-2.5 border-orange-500/40 text-orange-400 hover:bg-orange-500/15 hover:border-orange-500 font-semibold transition-colors"
                         >
                           Verify
                         </Button>

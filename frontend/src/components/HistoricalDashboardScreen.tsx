@@ -440,74 +440,82 @@ export const HistoricalDashboardScreen: React.FC<HistoricalDashboardScreenProps>
 
       {/* 2. Top KPI Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <Card className="bg-card/70 border-border/80 shadow-xs relative overflow-hidden group hover:border-amber-500/40 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
+        <Card className="bg-card/85 border-border border-t-2 border-t-amber-500 shadow-md relative overflow-hidden group hover:border-amber-500/60 transition-all">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
-              <span className="font-medium">Persistent Detections</span>
-              <Flame className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-medium text-amber-400/90">Persistent Detections</span>
+              <div className="h-6 w-6 rounded-md bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <Flame className="w-3.5 h-3.5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-foreground font-mono">
+            <div className="text-2xl font-bold tracking-tight text-amber-400 font-mono">
               {(summary?.total_detections || 167237).toLocaleString()}
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shadow-xs shadow-amber-500/80 animate-pulse" />
               <span>Full Historical Record</span>
-              <span className="text-foreground font-mono text-[10px] ml-auto">100% Validated</span>
+              <span className="text-amber-400 font-mono text-[10px] ml-auto font-medium">100% Validated</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs relative overflow-hidden group hover:border-red-500/40 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
+        <Card className="bg-card/85 border-border border-t-2 border-t-red-500 shadow-md relative overflow-hidden group hover:border-red-500/60 transition-all">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-red-500/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
-              <span className="font-medium">Candidate Groups</span>
-              <Activity className="w-3.5 h-3.5 text-red-500" />
+              <span className="font-medium text-red-400/90">Candidate Groups</span>
+              <div className="h-6 w-6 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400">
+                <Activity className="w-3.5 h-3.5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-foreground font-mono">
+            <div className="text-2xl font-bold tracking-tight text-red-400 font-mono">
               {summary?.candidate_groups || 51}
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-xs shadow-red-500/80" />
               <span>Screened Hotspot Clusters</span>
-              <span className="text-foreground font-mono text-[10px] ml-auto">Unknown Origin</span>
+              <span className="text-red-400 font-mono text-[10px] ml-auto font-medium">Priority Watch</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs relative overflow-hidden group hover:border-blue-500/40 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
+        <Card className="bg-card/85 border-border border-t-2 border-t-sky-500 shadow-md relative overflow-hidden group hover:border-sky-500/60 transition-all">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
-              <span className="font-medium">Industrial Facilities</span>
-              <Building2 className="w-3.5 h-3.5 text-blue-500" />
+              <span className="font-medium text-sky-400/90">Industrial Facilities</span>
+              <div className="h-6 w-6 rounded-md bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                <Building2 className="w-3.5 h-3.5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-foreground font-mono">
+            <div className="text-2xl font-bold tracking-tight text-sky-400 font-mono">
               {(summary?.facility_inventory_records || 935).toLocaleString()}
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-sky-500 shadow-xs shadow-sky-500/80" />
               <span>National Inventory Layer</span>
-              <span className="text-foreground font-mono text-[10px] ml-auto">Point Registry</span>
+              <span className="text-sky-400 font-mono text-[10px] ml-auto font-medium">Point Registry</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 border-border/80 shadow-xs relative overflow-hidden group hover:border-emerald-500/40 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
+        <Card className="bg-card/85 border-border border-t-2 border-t-emerald-500 shadow-md relative overflow-hidden group hover:border-emerald-500/60 transition-all">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground text-xs mb-1">
-              <span className="font-medium">Observation Timeline</span>
-              <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="font-medium text-emerald-400/90">Observation Timeline</span>
+              <div className="h-6 w-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <Calendar className="w-3.5 h-3.5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-foreground font-mono">
+            <div className="text-2xl font-bold tracking-tight text-emerald-400 font-mono">
               7.7 Years
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500/80" />
               <span>2019-01-01 – 2026-09-04</span>
-              <span className="text-amber-500 font-mono text-[10px] ml-auto">2026 Partial</span>
+              <span className="text-amber-400 font-mono text-[10px] ml-auto font-medium">2026 Active</span>
             </div>
           </CardContent>
         </Card>

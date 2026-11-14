@@ -403,37 +403,37 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
       {/* Header & Global Horizon */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="outline" className="text-xs font-medium">
-              Advanced Visual Intelligence
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <Badge variant="outline" className="text-xs font-semibold bg-sky-500/15 text-sky-400 border-sky-500/30 shadow-xs">
+              ⚡ Advanced Visual Intelligence
             </Badge>
-            <Badge variant="secondary" className="text-xs font-mono">
+            <Badge variant="secondary" className="text-xs font-mono font-semibold bg-purple-500/15 text-purple-400 border-purple-500/30 shadow-xs">
               Multi-Chart Matrix v3.0
             </Badge>
-            <Badge variant="outline" className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+            <Badge variant="outline" className="text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-xs">
               {totalCount.toLocaleString()} Detections Synthesized
             </Badge>
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent">
             Geospatial Analytics &amp; Visual Intelligence
           </h1>
           <p className="text-xs text-muted-foreground max-w-3xl mt-1">
-            Integrated multi-chart analytics for <strong>{profile.name}</strong> over <strong>{timeRange.toUpperCase()}</strong> horizon: scatter radiance vs buffer proximity, polar wind dispersion, LULC donut fuel partition, dual-axis temporal volume, and diurnal heatmaps.
+            Integrated multi-chart analytics for <strong className="text-foreground">{profile.name}</strong> over <strong className="text-orange-400">{timeRange.toUpperCase()}</strong> horizon: scatter radiance vs buffer proximity, polar wind dispersion, LULC donut fuel partition, dual-axis temporal volume, and diurnal heatmaps.
           </p>
         </div>
 
         {/* Global Controls & Mode Selector */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Zone (States) Selector */}
-          <div className="flex items-center bg-secondary/50 p-1 rounded-md border border-border text-xs">
+          <div className="flex items-center bg-secondary/80 p-1 rounded-md border border-border text-xs shadow-xs">
             <span className="text-muted-foreground px-2 text-[11px] font-medium hidden sm:inline">Zone:</span>
             {['ALL', 'Karnataka', 'Telangana', 'Andhra', 'Tamil Nadu'].map((zone) => (
               <button
                 key={zone}
                 onClick={() => setSelectedZone(zone)}
-                className={`px-2.5 py-1 rounded text-xs transition-colors ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors font-medium ${
                   selectedZone === zone
-                    ? 'bg-background text-foreground font-medium shadow-sm border border-border'
+                    ? 'bg-orange-500/15 text-orange-400 font-semibold shadow-xs border border-orange-500/30'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -443,7 +443,7 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
           </div>
 
           {/* Time Horizon */}
-          <div className="flex items-center bg-secondary/50 p-1 rounded-md border border-border text-xs">
+          <div className="flex items-center bg-secondary/80 p-1 rounded-md border border-border text-xs shadow-xs">
             {[
               { id: '7d', label: '7D' },
               { id: '30d', label: '30D' },
@@ -453,9 +453,9 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setTimeRange(tab.id as any)}
-                className={`px-3 py-1 rounded text-xs transition-colors ${
+                className={`px-3 py-1 rounded text-xs transition-colors font-medium ${
                   timeRange === tab.id
-                    ? 'bg-background text-foreground font-medium shadow-sm border border-border'
+                    ? 'bg-orange-500/15 text-orange-400 font-semibold shadow-xs border border-orange-500/30'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >

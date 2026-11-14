@@ -350,10 +350,10 @@ export const ReviewQueueScreen: React.FC<ReviewQueueScreenProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => onSelectEpisodeForMap(selectedEpisode.id)}
-                    className="gap-1.5 text-xs"
+                    className="gap-1.5 text-xs border-sky-500/40 text-sky-400 hover:bg-sky-500/15 hover:border-sky-500 font-semibold transition-colors"
                   >
                     <MapPin className="w-3.5 h-3.5" />
-                    Locate on Map
+                    Locate on Tactical Map
                   </Button>
                 )}
               </div>
@@ -539,16 +539,16 @@ export const ReviewQueueScreen: React.FC<ReviewQueueScreenProps> = ({
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Button
                     onClick={handleConfirmCurrent}
-                    className="flex-1 gap-1.5 text-xs font-medium"
+                    className="flex-1 gap-1.5 text-xs font-semibold bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-md shadow-emerald-500/25 transition-all"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Confirm Classification
                   </Button>
 
                   <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={() => onRequestSecondReview(selectedEpisode.id)}
-                    className="text-xs"
+                    className="text-xs border-amber-500/40 text-amber-400 hover:bg-amber-500/15 font-semibold transition-colors"
                   >
                     Escalate
                   </Button>
@@ -556,7 +556,7 @@ export const ReviewQueueScreen: React.FC<ReviewQueueScreenProps> = ({
                   <Button
                     variant="outline"
                     onClick={() => onRejectGlint(selectedEpisode.id)}
-                    className="text-xs gap-1.5"
+                    className="text-xs gap-1.5 border-red-500/40 text-red-400 hover:bg-red-500/15 font-semibold transition-colors"
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     Mark as Glint
