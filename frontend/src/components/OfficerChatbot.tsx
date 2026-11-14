@@ -36,6 +36,162 @@ interface ChatMessage {
   isNotice?: boolean;
 }
 
+// Rich formatter for inline tokens (bold, badges, MW highlights, code IDs)
+function formatInlineTokens(str: string): React.ReactNode {
+  // Regex splitting by bold tokens (**...**), code tokens (`...`), and facility IDs ([FAC_...])
+  const parts = str.split(/(\*\*.*?\*\*|`.*?`|\[FAC_[^\]]+\])/g);
+
+  return parts.map((part, i) => {
+    if (!part) return null;
+
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      if (inner === 'EXCEEDANCE') {
+        return (
+          <span key={i} className="font-bold text-red-400 bg-red-500/15 px-1.5 py-0.5 rounded border border-red-500/30 text-[10px] inline-block tracking-wide">
+            EXCEEDANCE
+          </span>
+        );
+      }
+      if (inner === 'PERSISTENT') {
+        return (
+          <span key={i} className="font-bold text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded border border-amber-500/30 text-[10px] inline-block tracking-wide">
+            PERSISTENT
+          </span>
+        );
+      }
+      if (inner === 'NOMINAL') {
+        return (
+          <span key={i} className="font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/30 text-[10px] inline-block tracking-wide">
+            NOMINAL
+          </span>
+        );
+      }
+      if (inner.includes('MW')) {
+        return (
+          <strong key={i} className="font-bold text-orange-400 font-mono">
+            {inner}
+          </strong>
+        );
+      }
+      return (
+        <strong key={i} className="font-semibold text-foreground">
+          {inner}
+        </strong>
+      );
+    }
+
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <span key={i} className="font-mono text-[10.5px] bg-secondary/90 text-sky-400 px-1.5 py-0.5 rounded border border-border">
+          {part.slice(1, -1)}
+        </span>
+      );
+    }
+
+    if (part.startsWith('[FAC_') && part.endsWith(']')) {
+      return (
+        <span key={i} className="font-mono text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.5 rounded ml-1 font-medium">
+          {part}
+        </span>
+      );
+    }
+
+    return part;
+  });
+}
+
+function renderFormattedMessage(text: string) {
+  const paragraphs = text.split('\n\n');
+
+  return (
+    <div className="space-y-3 font-sans text-xs">
+      {paragraphs.map((para, pIdx) => {
+        const lines = para.split('\n');
+
+        // Check if paragraph contains a formal notice code block
+        if (para.includes('FORMAL SHOW-CAUSE REGULATORY NOTICE')) {
+          return (
+            <div key={pIdx} className="p-3 rounded-lg bg-card/90 border border-orange-500/40 font-mono text-[10.5px] text-muted-foreground whitespace-pre-wrap leading-relaxed space-y-1.5">
+              {para.replace(/```/g, '')}
+            </div>
+          );
+        }
+
+        // Check if paragraph is a facility list entry (e.g. starts with "1. **Facility Name**" or "1. Facility")
+        const isFacilityEntry = /^\d+\.\s+/.test(lines[0].trim());
+
+        if (isFacilityEntry) {
+          const titleLine = lines[0].trim();
+          const detailLines = lines.slice(1);
+          return (
+            <div key={pIdx} className="p-2.5 rounded-lg bg-secondary/40 border border-border border-l-4 border-l-orange-500 space-y-1.5 shadow-xs">
+              <div className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                {formatInlineTokens(titleLine)}
+              </div>
+              <div className="space-y-1 pt-0.5 pl-1">
+                {detailLines.map((dLine, dlIdx) => {
+                  const trimmed = dLine.trim();
+                  if (!trimmed) return null;
+                  const isBullet = trimmed.startsWith('•') || trimmed.startsWith('*') || trimmed.startsWith('-');
+                  const cleanText = isBullet ? trimmed.replace(/^[•*-]\s*/, '') : trimmed;
+                  return (
+                    <div key={dlIdx} className="flex items-start gap-2 text-[11px] text-muted-foreground leading-snug">
+                      <span className="text-orange-400 font-bold shrink-0 mt-0.5">•</span>
+                      <span className="flex-1">{formatInlineTokens(cleanText)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={pIdx} className="space-y-1.5">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return null;
+
+              if (trimmed.startsWith('### ')) {
+                return (
+                  <div key={lIdx} className="font-bold text-xs text-orange-400 pb-1 border-b border-border/70 flex items-center gap-1.5">
+                    {trimmed.replace('### ', '')}
+                  </div>
+                );
+              }
+
+              if (trimmed.startsWith('•') || trimmed.startsWith('*') || trimmed.startsWith('-')) {
+                const cleanText = trimmed.replace(/^[•*-]\s*/, '');
+                return (
+                  <div key={lIdx} className="flex items-start gap-2 pl-1.5 text-[11px] text-muted-foreground leading-snug">
+                    <span className="text-orange-400 font-bold shrink-0 mt-0.5">•</span>
+                    <span className="flex-1">{formatInlineTokens(cleanText)}</span>
+                  </div>
+                );
+              }
+
+              if (trimmed.startsWith('*Officer Recommendation:*')) {
+                return (
+                  <div key={lIdx} className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 font-medium leading-relaxed">
+                    {formatInlineTokens(trimmed)}
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lIdx} className="leading-relaxed">
+                  {formatInlineTokens(trimmed)}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export const OfficerChatbot: React.FC<OfficerChatbotProps> = ({
   facilities,
   episodes,
@@ -184,7 +340,9 @@ Issued by Order of the Enforcement Directorate.`;
         sender: 'bot',
         timestamp: timeNow,
         text: `### 📄 DRAFTED SHOW-CAUSE NOTICE
-Here is the official notice generated using verified database records for **${matched.name}**:`,
+Here is the official notice generated using verified database records for **${matched.name}**:
+
+${noticeText}`,
         facilityCard: matched,
         isNotice: true,
         actionButtons: [
@@ -446,27 +604,8 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
                           : 'bg-secondary/40 border border-border text-foreground rounded-tl-none space-y-2'
                       }`}
                     >
-                      {/* Markdown-style formatting */}
-                      <div className="whitespace-pre-wrap font-sans text-xs space-y-1">
-                        {m.text.split('\n\n').map((paragraph, idx) => (
-                          <div key={idx}>
-                            {paragraph.split('\n').map((line, lidx) => {
-                              if (line.startsWith('### ')) {
-                                return (
-                                  <div key={lidx} className="font-bold text-xs text-orange-400 mb-1 border-b border-border/50 pb-0.5">
-                                    {line.replace('### ', '')}
-                                  </div>
-                                );
-                              }
-                              return (
-                                <p key={lidx} className={line.startsWith('•') || line.startsWith('*') ? 'pl-2 text-muted-foreground font-mono text-[11px]' : ''}>
-                                  {line}
-                                </p>
-                              );
-                            })}
-                          </div>
-                        ))}
-                      </div>
+                      {/* Rich Officer Output Formatting */}
+                      {renderFormattedMessage(m.text)}
 
                       {/* Notice Box with Copy Button */}
                       {m.isNotice && (
@@ -580,3 +719,4 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
     </>
   );
 };
+
