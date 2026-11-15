@@ -452,8 +452,8 @@ CORE OPERATIONAL RULES:
 
     let response: any = null;
     const candidateModels = [
-      'gemini-3.8-flash',
       'gemini-flash-latest',
+      'gemini-3.8-flash',
       'gemini-2.5-flash',
       'gemini-2.5-flash-lite',
       'gemini-2.0-flash',
