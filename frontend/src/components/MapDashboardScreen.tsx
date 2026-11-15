@@ -7,8 +7,7 @@ import { useTheme } from '../lib/theme';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-
-const API = 'http://localhost:3001/api';
+import { API } from '../lib/api';
 
 type Hotspot = {
   id: string;

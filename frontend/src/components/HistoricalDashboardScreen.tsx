@@ -40,8 +40,7 @@ import {
   HistoricalAnnualPoint,
   HistoricalDetection,
 } from '../types';
-
-const API = 'http://localhost:3001/api';
+import { API } from '../lib/api';
 
 // Map pan controller for centering on candidates or facilities and resizing map tiles
 const MapPanController: React.FC<{ targetCoords: [number, number] | null }> = ({ targetCoords }) => {

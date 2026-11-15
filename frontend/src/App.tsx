@@ -16,8 +16,7 @@ const AuthScreen = lazy(() => import('./components/AuthScreen').then(m => ({ def
 const LoginModal = lazy(() => import('./components/LoginModal').then(m => ({ default: m.LoginModal })));
 const SearchModal = lazy(() => import('./components/SearchModal').then(m => ({ default: m.SearchModal })));
 import { OfficerChatbot } from './components/OfficerChatbot';
-
-const API = 'http://localhost:3001/api';
+import { API } from './lib/api';
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center h-64">

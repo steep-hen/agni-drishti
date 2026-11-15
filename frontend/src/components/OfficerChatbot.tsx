@@ -1,4 +1,4 @@
-git import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ShieldAlert,
   Send,
@@ -19,6 +19,7 @@ import {
 import { IndustrialFacility, ThermalEpisode, ScreenTab } from '../types';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { API } from '../lib/api';
 
 interface OfficerChatbotProps {
   facilities: IndustrialFacility[];
@@ -592,7 +593,7 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
 
     try {
       // 1. Try backend Gemini API
-      const res = await fetch('http://localhost:3001/api/chat', {
+      const res = await fetch(`${API}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
