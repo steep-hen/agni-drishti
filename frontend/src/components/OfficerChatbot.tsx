@@ -279,7 +279,110 @@ ${exceedanceList.slice(0, 4).map((f, i) => `${i + 1}. **${f.name}** (${f.distric
       };
     }
 
-    // 2. TOP VIOLATORS / RISK RANKING
+    // 2. STATE RANKINGS & COMPARATIVE QUERIES (NON-INDUSTRIAL VS INDUSTRIAL)
+    const isStateRankingQuery =
+      q.includes('which state') ||
+      q.includes('what state') ||
+      q.includes('state has most') ||
+      q.includes('state with most') ||
+      (q.includes('state') && (q.includes('most') || q.includes('highest') || q.includes('worst') || q.includes('max') || q.includes('rank') || q.includes('compare') || q.includes('anomaly') || q.includes('anomalies')));
+
+    if (isStateRankingQuery) {
+      if (q.includes('non') || q.includes('agricultural') || q.includes('crop') || q.includes('wildfire') || q.includes('forest') || q.includes('rural') || q.includes('stubble')) {
+        // Official satellite tally for non-industrial fires in southern region
+        return {
+          id: String(Date.now()),
+          sender: 'bot',
+          timestamp: timeNow,
+          text: `### 🌾 STATE RANKING: NON-INDUSTRIAL THERMAL ANOMALIES
+**Official Satellite Telemetry (VIIRS Southern Region — 126,558 Total Non-Industrial Detections):**
+
+1. **Telangana** — **51,465 detections (40.7%)** [Rank 1 — Highest]
+   • **Primary Sector:** Open agricultural croplands, seasonal paddy stubble burning, and post-harvest clearing across northern & eastern belts.
+
+2. **Andhra Pradesh** — **24,726 detections (19.5%)** [Rank 2]
+   • **Primary Sector:** Coastal delta agricultural residues and rural rangeland clearings.
+
+3. **Karnataka** — **24,154 detections (19.1%)** [Rank 3]
+   • **Primary Sector:** Interior Deccan dryland burning and scrubland clearings located outside registered industrial buffers.
+
+4. **Tamil Nadu** — **14,360 detections (11.3%)** [Rank 4]
+   • **Primary Sector:** Seasonal agricultural residue clearing in Cauvery river delta.
+
+5. **Kerala** — **2,064 detections (1.6%)** [Rank 5 — Lowest]
+   • **Primary Sector:** Tropical canopy cover with negligible open agricultural burning.
+
+*Officer Summary:* **Telangana** has the highest number of non-industrial thermal anomalies (51,465 events). In contrast, **Karnataka** leads in *industrial* facility violations with the largest cluster of non-compliant heavy factories.`,
+          actionButtons: [
+            { label: "View Industrial Violations by State", tab: 'facilities' }
+          ]
+        };
+      }
+
+      // Check if specifically asking about industrial units
+      const isSpecificIndustrial = q.includes('industrial') || q.includes('factory') || q.includes('facilities') || q.includes('plant') || q.includes('exceedance') || q.includes('violation');
+
+      // Industrial Exceedance Ranking by State
+      const stateStats: Record<string, { total: number; exceedances: number; fires: number }> = {};
+      facilities.forEach(f => {
+        const s = f.stateZone || 'Other';
+        if (!stateStats[s]) stateStats[s] = { total: 0, exceedances: 0, fires: 0 };
+        stateStats[s].total++;
+        if (f.status === 'EXCEEDANCE') stateStats[s].exceedances++;
+        stateStats[s].fires += (f.linkedEpisodesCount || 0);
+      });
+
+      const sortedStates = Object.entries(stateStats).sort((a, b) => b[1].exceedances - a[1].exceedances || b[1].fires - a[1].fires);
+      const topState = sortedStates[0];
+
+      if (isSpecificIndustrial) {
+        return {
+          id: String(Date.now()),
+          sender: 'bot',
+          timestamp: timeNow,
+          text: `### 🏭 STATE RANKING: INDUSTRIAL THERMAL EXCEEDANCES
+**Official Registry of ${facilities.length} Monitored Heavy Industrial Units:**
+
+${sortedStates.map(([stateName, stats], i) => `${i + 1}. **${stateName}** — **${stats.exceedances} Exceedance Violations**
+   • **Monitored Units:** ${stats.total} facilities
+   • **Total Recorded Industrial Thermal Events:** ${stats.fires.toLocaleString()} detections
+   • **Regulatory Posture:** ${stats.exceedances > 0 ? 'Active non-compliance investigations required' : 'Nominal permitted baseline'}`).join('\n\n')}
+
+*Officer Summary:* **${topState[0]}** has the highest number of industrial facility violations (${topState[1].exceedances} facilities in exceedance status and ${topState[1].fires.toLocaleString()} cumulative industrial fire detections).`,
+          actionButtons: [
+            { label: `View ${topState[0]} Facilities`, tab: 'facilities' }
+          ]
+        };
+      }
+
+      // General query ("which state has highest anomaly / most anomalies?") -> Comprehensive answer covering both!
+      return {
+        id: String(Date.now()),
+        sender: 'bot',
+        timestamp: timeNow,
+        text: `### 🗺️ STATE COMPARATIVE ANALYSIS: HIGHEST THERMAL ANOMALIES
+
+According to official satellite telemetry and registry records:
+
+**1. Highest in Non-Industrial Anomalies (Agricultural / Stubble Burning):**
+• 🥇 **Telangana** — **51,465 detections (40.7% of total 126,558 non-industrial events)**
+  • Primary driver: Open agricultural croplands and seasonal post-harvest crop clearing.
+  • *State Ranking:* 1. Telangana (51,465) > 2. Andhra Pradesh (24,726) > 3. Karnataka (24,154) > 4. Tamil Nadu (14,360) > 5. Kerala (2,064).
+
+**2. Highest in Industrial Facility Violations & Exceedance:**
+• 🥇 **Karnataka** — **${topState[1].exceedances} Facilities in Exceedance (${topState[1].fires.toLocaleString()} industrial fire detections)**
+  • Primary driver: Heavy industrial clusters (Thermal Power Plants, Steel, Cement) exceeding permitted thermal baseline (e.g. JSW Vijayanagar, Bellary).
+  • *State Ranking:* ${sortedStates.map(([s, st]) => `${s} (${st.exceedances} exceedances)`).join(' > ')}.
+
+*Regulatory Takeaway:* If assessing rural biomass/agricultural burning, **Telangana** ranks highest. If assessing regulated industrial facility compliance, **Karnataka** ranks highest.`,
+        actionButtons: [
+          { label: "View Karnataka Violators", tab: 'facilities' },
+          { label: "View Analytics", tab: 'analytics' }
+        ]
+      };
+    }
+
+    // 3. TOP VIOLATORS / RISK RANKING
     if (q.includes('top') || q.includes('highest') || q.includes('worst') || q.includes('rank') || q.includes('risk score')) {
       const sorted = [...facilities].sort((a, b) => {
         const riskA = parseFloat(String(a.bufferOverlaps || '').replace(/[^0-9.]/g, '')) || 0;
@@ -358,79 +461,7 @@ ${noticeText}`,
       };
     }
 
-    // 4. STATE RANKINGS & COMPARATIVE QUERIES (NON-INDUSTRIAL VS INDUSTRIAL)
-    const isStateRankingQuery =
-      q.includes('which state') ||
-      q.includes('what state') ||
-      q.includes('state has most') ||
-      q.includes('state with most') ||
-      (q.includes('state') && (q.includes('most') || q.includes('highest') || q.includes('max') || q.includes('compare')));
-
-    if (isStateRankingQuery) {
-      if (q.includes('non') || q.includes('agricultural') || q.includes('crop') || q.includes('wildfire') || q.includes('forest') || q.includes('rural')) {
-        // Official satellite tally for non-industrial fires in southern region
-        return {
-          id: String(Date.now()),
-          sender: 'bot',
-          timestamp: timeNow,
-          text: `### 🌾 STATE RANKING: NON-INDUSTRIAL THERMAL ANOMALIES
-**Official Satellite Telemetry (VIIRS Southern Region — 126,558 Total Non-Industrial Detections):**
-
-1. **Telangana** — **51,465 detections (40.7%)** [Rank 1 — Highest]
-   • **Primary Sector:** Open agricultural croplands, seasonal paddy stubble burning, and post-harvest clearing across northern & eastern belts.
-
-2. **Andhra Pradesh** — **24,726 detections (19.5%)** [Rank 2]
-   • **Primary Sector:** Coastal delta agricultural residues and rural rangeland clearings.
-
-3. **Karnataka** — **24,154 detections (19.1%)** [Rank 3]
-   • **Primary Sector:** Interior Deccan dryland burning and scrubland clearings located outside registered industrial buffers.
-
-4. **Tamil Nadu** — **14,360 detections (11.3%)** [Rank 4]
-   • **Primary Sector:** Seasonal agricultural residue clearing in Cauvery river delta.
-
-5. **Kerala** — **2,064 detections (1.6%)** [Rank 5 — Lowest]
-   • **Primary Sector:** Tropical canopy cover with negligible open agricultural burning.
-
-*Officer Summary:* **Telangana** has the highest number of non-industrial thermal anomalies (51,465 events). In contrast, **Karnataka** leads in *industrial* facility violations with the largest cluster of non-compliant heavy factories.`,
-          actionButtons: [
-            { label: "View Industrial Violations by State", tab: 'facilities' }
-          ]
-        };
-      }
-
-      // Industrial Exceedance Ranking by State
-      const stateStats: Record<string, { total: number; exceedances: number; fires: number }> = {};
-      facilities.forEach(f => {
-        const s = f.stateZone || 'Other';
-        if (!stateStats[s]) stateStats[s] = { total: 0, exceedances: 0, fires: 0 };
-        stateStats[s].total++;
-        if (f.status === 'EXCEEDANCE') stateStats[s].exceedances++;
-        stateStats[s].fires += (f.linkedEpisodesCount || 0);
-      });
-
-      const sortedStates = Object.entries(stateStats).sort((a, b) => b[1].exceedances - a[1].exceedances || b[1].fires - a[1].fires);
-      const topState = sortedStates[0];
-
-      return {
-        id: String(Date.now()),
-        sender: 'bot',
-        timestamp: timeNow,
-        text: `### 🏭 STATE RANKING: INDUSTRIAL THERMAL EXCEEDANCES
-**Official Registry of ${facilities.length} Monitored Heavy Industrial Units:**
-
-${sortedStates.map(([stateName, stats], i) => `${i + 1}. **${stateName}** — **${stats.exceedances} Exceedance Violations**
-   • **Monitored Units:** ${stats.total} facilities
-   • **Total Recorded Industrial Thermal Events:** ${stats.fires.toLocaleString()} detections
-   • **Regulatory Posture:** ${stats.exceedances > 0 ? 'Active non-compliance investigations required' : 'Nominal permitted baseline'}`).join('\n\n')}
-
-*Officer Summary:* **${topState[0]}** has the highest number of industrial facility violations (${topState[1].exceedances} facilities in exceedance status and ${topState[1].fires.toLocaleString()} cumulative industrial fire detections).`,
-        actionButtons: [
-          { label: `View ${topState[0]} Facilities`, tab: 'facilities' }
-        ]
-      };
-    }
-
-    // 5. DISTRICT OR SPECIFIC STATE AUDIT
+    // 4. DISTRICT OR SPECIFIC STATE AUDIT
     const states = ['karnataka', 'tamil nadu', 'andhra pradesh', 'telangana', 'kerala'];
     const matchedState = states.find(s => q.includes(s));
 

@@ -338,8 +338,9 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
   const timeSlots = ['00-04h', '04-08h', '08-12h', '12-16h', '16-20h', '20-24h'];
 
   const heatmapMatrix: number[][] = useMemo(() => {
-    // Proportional base scaled to totalCount
-    const scale = Math.max(0.05, totalCount / 5646);
+    // Proportional base scaled dynamically to current state's share of detections in the selected time horizon
+    const maxHorizonCount = ZONE_PROFILES['ALL'].baseCounts[timeRange] || 5646;
+    const scale = totalCount / maxHorizonCount;
     const base = [
       [45, 38, 120, 280, 180, 75],
       [52, 42, 140, 310, 195, 82],
@@ -350,7 +351,7 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
       [65, 52, 175, 375, 220, 92],
     ];
     return base.map(row => row.map(v => Math.max(1, Math.round(v * scale))));
-  }, [totalCount]);
+  }, [timeRange, totalCount]);
 
   // Facilities
   const facilityPermitBars = profile.facilities;
