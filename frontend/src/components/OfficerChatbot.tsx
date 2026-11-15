@@ -1,16 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  ShieldAlert, 
-  Send, 
-  X, 
-  Minus, 
-  Maximize2, 
-  Building2, 
-  Copy, 
-  Check, 
-  MapPin, 
-  AlertTriangle, 
-  FileText, 
+git import React, { useState, useRef, useEffect } from 'react';
+import {
+  ShieldAlert,
+  Send,
+  X,
+  Minus,
+  Maximize2,
+  Building2,
+  Copy,
+  Check,
+  MapPin,
+  AlertTriangle,
+  FileText,
   ChevronRight,
   Bot,
   KeyRound,
@@ -311,8 +311,8 @@ ${top5.map((f, i) => `${i + 1}. **${f.name}** [${f.id.trim()}]
     // 3. SHOW CAUSE NOTICE DRAFTING
     if (q.includes('notice') || q.includes('show cause') || q.includes('show-cause') || q.includes('draft')) {
       // Find matching facility or take the highest exceedance facility
-      const matched = facilities.find(f => 
-        q.includes(f.name.toLowerCase()) || 
+      const matched = facilities.find(f =>
+        q.includes(f.name.toLowerCase()) ||
         q.includes(f.id.toLowerCase().trim()) ||
         q.includes(f.district.toLowerCase())
       ) || facilities.find(f => f.status === 'EXCEEDANCE') || facilities[0];
@@ -358,11 +358,11 @@ ${noticeText}`,
     }
 
     // 4. STATE RANKINGS & COMPARATIVE QUERIES (NON-INDUSTRIAL VS INDUSTRIAL)
-    const isStateRankingQuery = 
-      q.includes('which state') || 
-      q.includes('what state') || 
-      q.includes('state has most') || 
-      q.includes('state with most') || 
+    const isStateRankingQuery =
+      q.includes('which state') ||
+      q.includes('what state') ||
+      q.includes('state has most') ||
+      q.includes('state with most') ||
       (q.includes('state') && (q.includes('most') || q.includes('highest') || q.includes('max') || q.includes('compare')));
 
     if (isStateRankingQuery) {
@@ -432,7 +432,7 @@ ${sortedStates.map(([stateName, stats], i) => `${i + 1}. **${stateName}** — **
     // 5. DISTRICT OR SPECIFIC STATE AUDIT
     const states = ['karnataka', 'tamil nadu', 'andhra pradesh', 'telangana', 'kerala'];
     const matchedState = states.find(s => q.includes(s));
-    
+
     // Check if district is mentioned
     const matchedByDistrict = facilities.filter(f => q.includes(f.district.toLowerCase().trim()));
 
@@ -595,9 +595,9 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
       const res = await fetch('http://localhost:3001/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          query: query.trim(), 
-          customApiKey: geminiKey || undefined 
+        body: JSON.stringify({
+          query: query.trim(),
+          customApiKey: geminiKey || undefined
         })
       });
 
@@ -651,29 +651,45 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
       {!isOpen && (
         <button
           onClick={() => { setIsOpen(true); setIsMinimized(false); }}
-          className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 px-4 py-2.5 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-medium text-xs rounded-full shadow-xl shadow-orange-950/40 border border-orange-400/40 transition-all hover:scale-105 active:scale-95 group"
+          className="fixed bottom-5 right-5 z-40 w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 via-amber-500 to-orange-700 shadow-2xl shadow-orange-900/60 border-2 border-orange-400/60 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform officer-wave-btn"
           title="Open Government Officer AI Compliance Desk"
+          style={{ animation: 'officerWave 2s ease-in-out infinite' }}
         >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-300 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-          </span>
-          <ShieldAlert className="w-4 h-4 text-white" />
-          <span className="font-semibold tracking-wide">Officer AI Desk</span>
-          <Badge variant="outline" className="text-[10px] px-1 py-0 border-white/40 text-white ml-0.5">
-            Grounded
-          </Badge>
+          {/* Reddit Snoo alien SVG icon */}
+          <svg viewBox="0 0 20 20" className="w-9 h-9" fill="white" xmlns="http://www.w3.org/2000/svg">
+            {/* Head / body circle */}
+            <circle cx="10" cy="10" r="10" fill="none" />
+            {/* Antenna ball */}
+            <circle cx="14.2" cy="2.5" r="1.3" fill="white" />
+            {/* Antenna stick */}
+            <line x1="10" y1="6" x2="13.5" y2="3.2" stroke="white" strokeWidth="1.1" strokeLinecap="round" />
+            {/* Main head circle */}
+            <circle cx="10" cy="10.5" r="5.5" fill="white" />
+            {/* Left eye */}
+            <circle cx="8" cy="9.8" r="1.1" fill="#f97316" />
+            {/* Right eye */}
+            <circle cx="12" cy="9.8" r="1.1" fill="#f97316" />
+            {/* Left eye shine */}
+            <circle cx="8.4" cy="9.4" r="0.4" fill="white" />
+            {/* Right eye shine */}
+            <circle cx="12.4" cy="9.4" r="0.4" fill="white" />
+            {/* Smile */}
+            <path d="M7.8 12 Q10 13.8 12.2 12" stroke="#f97316" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+            {/* Left ear */}
+            <ellipse cx="4.2" cy="10.5" rx="1.2" ry="1.6" fill="white" />
+            {/* Right ear */}
+            <ellipse cx="15.8" cy="10.5" rx="1.2" ry="1.6" fill="white" />
+          </svg>
         </button>
       )}
 
       {/* Main Chatbot Panel */}
       {isOpen && (
-        <div 
-          className={`fixed right-4 z-50 transition-all duration-300 flex flex-col bg-card/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl overflow-hidden ${
-            isMinimized 
-              ? 'bottom-4 w-80 h-14' 
-              : 'bottom-4 w-[420px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[calc(100vh-2rem)]'
-          }`}
+        <div
+          className={`fixed right-4 z-50 transition-all duration-300 flex flex-col bg-card/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl overflow-hidden ${isMinimized
+            ? 'bottom-4 w-80 h-14'
+            : 'bottom-4 w-[420px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[calc(100vh-2rem)]'
+            }`}
         >
           {/* Header */}
           <div className="px-3.5 py-2.5 bg-secondary/80 border-b border-border flex items-center justify-between select-none">
@@ -790,11 +806,10 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
                     </div>
 
                     <div
-                      className={`p-3 rounded-lg max-w-[92%] leading-relaxed ${
-                        m.sender === 'user'
-                          ? 'bg-orange-600 text-white rounded-tr-none shadow-md'
-                          : 'bg-secondary/40 border border-border text-foreground rounded-tl-none space-y-2'
-                      }`}
+                      className={`p-3 rounded-lg max-w-[92%] leading-relaxed ${m.sender === 'user'
+                        ? 'bg-orange-600 text-white rounded-tr-none shadow-md'
+                        : 'bg-secondary/40 border border-border text-foreground rounded-tl-none space-y-2'
+                        }`}
                     >
                       {/* Rich Officer Output Formatting */}
                       {renderFormattedMessage(m.text)}
