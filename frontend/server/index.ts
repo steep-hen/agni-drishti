@@ -463,16 +463,28 @@ CORE OPERATIONAL RULES:
     let lastError: any = null;
     for (const model of candidateModels) {
       try {
-        response = await ai.models.generateContent({
-          model,
-          contents: query,
-          config: {
-            systemInstruction,
-            temperature: 0.2,
-          }
-        });
-        if (response?.text) break;
+        const timeoutMs = 25000; // 25s per model attempt
+        const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> =>
+          Promise.race([
+            promise,
+            new Promise<T>((_, reject) =>
+              setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms)
+            )
+          ]);
+        response = await withTimeout(
+          ai.models.generateContent({
+            model,
+            contents: query,
+            config: {
+              systemInstruction,
+              temperature: 0.2,
+            }
+          }),
+          timeoutMs
+        );
+        if (response?.text) { console.log(`✅ Success with model: ${model}`); break; }
       } catch (err: any) {
+        console.warn(`⚠️  Model ${model} failed: ${err.message}`);
         lastError = err;
       }
     }

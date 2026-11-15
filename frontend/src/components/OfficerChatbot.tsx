@@ -638,15 +638,19 @@ Please ask regarding a specific **facility name / ID**, **district**, **state**,
     setIsThinking(true);
 
     try {
-      // 1. Try backend Gemini API
+      // 1. Try backend Gemini API (60s timeout)
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 60000);
       const res = await fetch(`${API}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: query.trim(),
           customApiKey: geminiKey || undefined
-        })
+        }),
+        signal: controller.signal
       });
+      clearTimeout(fetchTimeout);
 
       if (res.ok) {
         const data = await res.json();
