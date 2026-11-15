@@ -450,26 +450,35 @@ CORE OPERATIONAL RULES:
 4. If an officer asks for information not in the database (e.g. company executives, stock prices, weather, personal queries), explicitly state: "Information not available in official registry records."
 5. Format your response cleanly using bold headers (### Title), clean bullet points (•), and structured sections.`;
 
-    let response;
-    try {
-      response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: query,
-        config: {
-          systemInstruction,
-          temperature: 0.2,
-        }
-      });
-    } catch (e) {
-      // Fallback to gemini-1.5-flash if 2.0-flash is not available in that region
-      response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: query,
-        config: {
-          systemInstruction,
-          temperature: 0.2,
-        }
-      });
+    let response: any = null;
+    const candidateModels = [
+      'gemini-3.8-flash',
+      'gemini-flash-latest',
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash'
+    ];
+
+    let lastError: any = null;
+    for (const model of candidateModels) {
+      try {
+        response = await ai.models.generateContent({
+          model,
+          contents: query,
+          config: {
+            systemInstruction,
+            temperature: 0.2,
+          }
+        });
+        if (response?.text) break;
+      } catch (err: any) {
+        lastError = err;
+      }
+    }
+
+    if (!response?.text && lastError) {
+      throw lastError;
     }
 
     const replyText = response.text || 'No response generated.';

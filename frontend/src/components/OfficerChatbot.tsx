@@ -236,6 +236,21 @@ export const OfficerChatbot: React.FC<OfficerChatbotProps> = ({
     }
   }, [messages, isOpen, isMinimized]);
 
+  // Keep welcome message count synchronized with verified facilities count
+  useEffect(() => {
+    const count = facilities.length || 208;
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === 'welcome'
+          ? {
+              ...m,
+              text: `**Government Compliance & Enforcement Desk**\n\nOfficer, I am grounded strictly on the **${count} verified industrial facilities** and **VIIRS satellite thermal detection records** in this system. I do not invent or fabricate data.\n\nYou can ask me for compliance audits, district violation tallies, facility risk profiles, or to draft an official Show-Cause Notice.`
+            }
+          : m
+      )
+    );
+  }, [facilities.length]);
+
   const handleCopyNotice = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);

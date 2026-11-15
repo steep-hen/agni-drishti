@@ -17,6 +17,7 @@ const LoginModal = lazy(() => import('./components/LoginModal').then(m => ({ def
 const SearchModal = lazy(() => import('./components/SearchModal').then(m => ({ default: m.SearchModal })));
 import { OfficerChatbot } from './components/OfficerChatbot';
 import { API } from './lib/api';
+import rawFacilitiesData from './data/facilitiesData.json';
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center h-64">
@@ -100,10 +101,40 @@ function computeFacilityThermalSpecs(f: any) {
   };
 }
 
+function mapRawFacility(f: any): IndustrialFacility {
+  const specs = computeFacilityThermalSpecs(f);
+  return {
+    id: (f.id || '').trim(),
+    name: (f.name || '').trim(),
+    shortName: (f.name || '').trim().substring(0, 30),
+    category: f.type?.includes('thermal') || f.type?.includes('power') ? 'Thermal' : 'Refineries',
+    stateZone: (f.state || '').trim(),
+    district: (f.district || '').trim(),
+    coordinates: {
+      lat: Number(f.lat),
+      lng: Number(f.lng),
+      latStr: `${Number(f.lat).toFixed(4)}° N`,
+      lngStr: `${Number(f.lng).toFixed(4)}° E`,
+    },
+    bufferRadiusKm: 5.0,
+    status: f.status,
+    linkedEpisodesCount: f.fire_count,
+    baselineOperatingMw: specs.baselineOperating,
+    peakFrp12mMw: specs.peakMw,
+    nominalFrpCapMw: specs.nominalCap,
+    registeredStacks: specs.registeredStacks,
+    bufferOverlaps: `Risk Score: ${f.risk_score}`,
+    satelliteFeed: { orbitPass: '12:00 UTC', fov: '5.0 KM²', target: 'MAIN', coreTemp: 'N/A', sensor: 'VIIRS', calibration: 'STD', imageUrl: '' },
+    cctvFeed: { title: 'GROUND TRUTH', exceedanceStatus: f.status, flameVelocity: 'N/A', stackHeight: 'N/A', analytics: 'Risk Engine', plumeDispersion: 'N/A', imageUrl: '' },
+    monthlyFRP: specs.monthlyFRP,
+    recentDetections: [],
+  };
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<ScreenTab>('historical');
   const [episodes, setEpisodes] = useState<ThermalEpisode[]>([]);
-  const [facilities, setFacilities] = useState<IndustrialFacility[]>([]);
+  const [facilities, setFacilities] = useState<IndustrialFacility[]>(() => rawFacilitiesData.map(mapRawFacility));
   const [analyst, setAnalyst] = useState<AnalystUser>(CURRENT_ANALYST);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMapTarget, setSelectedMapTarget] = useState<{
@@ -187,35 +218,7 @@ export default function App() {
 
         if (facsRes.ok) {
           const data = await facsRes.json();
-          const facs: IndustrialFacility[] = data.items.map((f: any) => {
-            const specs = computeFacilityThermalSpecs(f);
-            return {
-              id: (f.id || '').trim(),
-              name: (f.name || '').trim(),
-              shortName: (f.name || '').trim().substring(0, 30),
-              category: f.type?.includes('thermal') || f.type?.includes('power') ? 'Thermal' : 'Refineries',
-              stateZone: (f.state || '').trim(),
-              district: (f.district || '').trim(),
-              coordinates: {
-                lat: f.lat,
-                lng: f.lng,
-                latStr: `${f.lat.toFixed(4)}° N`,
-                lngStr: `${f.lng.toFixed(4)}° E`,
-              },
-              bufferRadiusKm: 5.0,
-              status: f.status,
-              linkedEpisodesCount: f.fire_count,
-              baselineOperatingMw: specs.baselineOperating,
-              peakFrp12mMw: specs.peakMw,
-              nominalFrpCapMw: specs.nominalCap,
-              registeredStacks: specs.registeredStacks,
-              bufferOverlaps: `Risk Score: ${f.risk_score}`,
-              satelliteFeed: { orbitPass: '12:00 UTC', fov: '5.0 KM²', target: 'MAIN', coreTemp: 'N/A', sensor: 'VIIRS', calibration: 'STD', imageUrl: '' },
-              cctvFeed: { title: 'GROUND TRUTH', exceedanceStatus: f.status, flameVelocity: 'N/A', stackHeight: 'N/A', analytics: 'Risk Engine', plumeDispersion: 'N/A', imageUrl: '' },
-              monthlyFRP: specs.monthlyFRP,
-              recentDetections: [],
-            };
-          });
+          const facs: IndustrialFacility[] = data.items.map(mapRawFacility);
           setFacilities(facs);
         }
       } catch (err) {

@@ -838,15 +838,16 @@ export const AnalyticsTrendsScreen: React.FC<AnalyticsTrendsScreenProps> = ({
                   <span className="w-8 text-[11px] font-mono text-muted-foreground shrink-0">{day}</span>
                   <div className="grid grid-cols-6 gap-1.5 flex-1">
                     {heatmapMatrix[rowIdx].map((val, colIdx) => {
-                      const intensity = val / maxHeatmapVal;
+                      // Normalize intensity against the global maximum horizon load so state differences reflect visibly in color
+                      const intensity = Math.min(1, val / 390);
                       const timeLabel = timeSlots[colIdx];
 
-                      const bgStyle = intensity > 0.75 
-                        ? 'bg-red-600 text-white' 
-                        : intensity > 0.5 
-                        ? 'bg-orange-500/80 text-white' 
-                        : intensity > 0.25 
-                        ? 'bg-amber-500/50 text-foreground' 
+                      const bgStyle = intensity > 0.65 
+                        ? 'bg-red-600 text-white font-semibold' 
+                        : intensity > 0.40 
+                        ? 'bg-orange-500/85 text-white font-semibold' 
+                        : intensity > 0.18 
+                        ? 'bg-amber-500/60 text-foreground font-medium' 
                         : 'bg-secondary text-muted-foreground';
 
                       return (

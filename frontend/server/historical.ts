@@ -1,8 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { DatabaseSync } from 'node:sqlite';
 import { Router } from 'express';
+
+// Graceful node:sqlite loader for Node 22+ compatibility
+let DatabaseSyncClass: any = null;
+try {
+  const sqliteModule = await import('node:sqlite');
+  DatabaseSyncClass = sqliteModule.DatabaseSync;
+} catch {
+  // Gracefully skip if running on Node runtime without node:sqlite
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DATA_DIR = path.resolve(__dirname, '..', '..', 'data');
@@ -80,12 +88,16 @@ const metadataRaw = JSON.parse(
 
 // Open indexed SQLite for 167,237 detections
 const dbPath = path.join(ROOT_DATA_DIR, 'historical', 'detections.db');
-let detectionsDb: DatabaseSync | null = null;
-if (fs.existsSync(dbPath)) {
-  detectionsDb = new DatabaseSync(dbPath);
-  console.log('Opened detections.db SQLite database successfully');
+let detectionsDb: any = null;
+if (DatabaseSyncClass && fs.existsSync(dbPath)) {
+  try {
+    detectionsDb = new DatabaseSyncClass(dbPath);
+    console.log('Opened detections.db SQLite database successfully');
+  } catch (e) {
+    console.warn('Failed to initialize detections.db:', e);
+  }
 } else {
-  console.warn('detections.db not found at', dbPath);
+  console.warn('detections.db or node:sqlite not loaded (using CSV fallback)');
 }
 
 // Format candidates
